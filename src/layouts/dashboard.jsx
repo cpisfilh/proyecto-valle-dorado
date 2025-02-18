@@ -35,12 +35,17 @@ export function Dashboard() {
           <Cog6ToothIcon className="h-5 w-5" />
         </IconButton>
         <Routes>
-          {routes.map(
-            ({ layout, pages }) =>
-              layout === "dashboard" &&
-              pages.map(({ path, element }) => (
-                <Route exact path={path} element={element} />
-              ))
+          {routes.map(({ layout, pages }) =>
+            layout === "dashboard" &&
+            pages.map(({ path, element, children }) => (
+              <Route key={path} path={path} element={element}>
+                {/* Si hay rutas hijas, las renderizamos dentro de la ruta principal */}
+                {children &&
+                  children.map(({ path: childPath, element: childElement }) => (
+                    <Route key={childPath} path={childPath} element={childElement} />
+                  ))}
+              </Route>
+            ))
           )}
         </Routes>
         <div className="text-blue-gray-600">

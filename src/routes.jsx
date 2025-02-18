@@ -8,6 +8,8 @@ import {
 import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
 import Customers from "./pages/dashboard/customers";
+import { Children } from "react";
+import Show from "./custom/components/Show";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -28,6 +30,23 @@ export const routes = [
         name: "Clientes",
         path: "/clientes",
         element: <Customers />,
+        children: [
+          {
+            name: "Mostrar Cliente",
+            path: "show",
+            element: <Show />,
+          },
+          {
+            name: "Crear Cliente",
+            path: "create",
+            element: <h1>Crear Cliente</h1>,
+          },
+          {
+            name: "Editar Cliente",
+            path: "edit",
+            element: <h1>Editar Cliente</h1>,
+          }
+        ],
       },
       {
         icon: <MapPinIcon {...icon} />,

@@ -1,44 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Table from "@/custom/components/Table";
-
-const customerData = [
-    {
-        id: 1,
-        nombres: "John Michael",
-        apellidos: "Kansas vegas",
-        celular: "123456789",
-    },
-    {
-        id: 2,
-        nombres: "Alexa Liras",
-        apellidos: "Kansas vegas",
-        celular: "123456789",
-    },
-    {
-        id: 3,
-        nombres: "Laurent Perrier",
-        apellidos: "Kansas vegas",
-        celular: "123456789",
-    },
-    {
-        id: 4,
-        nombres: "Michael Levi",
-        apellidos: "Kansas vegas",
-        celular: "123456789",
-    },
-    {
-        id: 5,
-        nombres: "Michael Levi",
-        apellidos: "Kansas vegas",
-        celular: "123456789",
-    },
-]
+import { getClientes } from "@/requests/reqClientes";
+import { Outlet, useLocation } from "react-router-dom";
 
 export function Customers() {
+    const [customerData, setCustomerData] = useState([]);
+    const location = useLocation();
+
+    function getData() {
+        getClientes().then((res) => {
+            setCustomerData(res.data);
+        });
+    }
+
+    useEffect(() => {
+        getData();
+    }, []);
+
+    const isClientesRoute = location.pathname.endsWith("/clientes");
 
     return (
         <div className="mx-auto my-20 flex max-w-screen-lg flex-col gap-8">
-            <Table title="Tabla de Clientes" data={customerData} />
+            {isClientesRoute && <Table title="Tabla de Clientes" entity="Cliente" data={customerData} />}
+            <Outlet />
         </div>
     );
 }
