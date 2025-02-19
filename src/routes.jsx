@@ -10,6 +10,7 @@ import { SignIn, SignUp } from "@/pages/auth";
 import Customers from "./pages/dashboard/customers";
 import { Children } from "react";
 import Show from "./custom/components/Show";
+import Create from "./custom/components/Create";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -39,7 +40,7 @@ export const routes = [
           {
             name: "Crear Cliente",
             path: "create",
-            element: <h1>Crear Cliente</h1>,
+            element: <Create />,
           },
           {
             name: "Editar Cliente",

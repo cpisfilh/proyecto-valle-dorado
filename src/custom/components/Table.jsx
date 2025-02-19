@@ -1,49 +1,61 @@
+import usePagination from "@/customhooks/usePagination";
+import { remove } from "@/requests/reqGenerics";
 import { EyeIcon, PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Button, Card, CardBody, CardHeader, Typography } from "@material-tailwind/react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
-const Table = ({ title, data,entity }) => {
+const Table = ({ title, loading, data, entity, fields, getData }) => {
     const navigate = useNavigate();
-    const columns = data && data.length ? Object.keys(data[0]) : [];
+    const columns = data && data.length ? Object.keys(data[0]).slice(0, 3) : [];
     const className = "py-3 px-5";
     const currentUrl = window.location.pathname;
 
+    const { currentData, currentPage, totalPages, nextPage, prevPage } = usePagination(data, 5); // 5 elementos por página
+
     function sendDataToShow(data) {
-        navigate(`${currentUrl}/show`, { state: {data, entity} });  // Navegar y pasar los datos en el estado
+        navigate(`${currentUrl}/show`, { state: { data, entity } });
     }
 
     function goToCreate() {
-        navigate(`${currentUrl}/create`);
+        navigate(`${currentUrl}/create`, { state: { fields, entity } });
+    }
+
+    function removeItem(id) {
+        remove({ id }, entity + "/delete").then((response) => {
+            if (response.message == "exito") {
+                toast.success("Registro eliminado!", {
+                    autoClose: 2500
+                })
+                getData()
+            } else {
+                toast.error("Ocurrió un problema!")
+            }
+        });
     }
 
     return (
         <Card>
-            <CardHeader variant="gradient" color="gray" className="mb-8 p-6 ">
+            <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                 <Typography variant="h5" color="white" className="text-center">
                     {title.toUpperCase()}
                 </Typography>
             </CardHeader>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                <div className="flex justify-start px-4">
+                <div className="flex justify-between px-4">
                     <Button variant="gradient" color="green" size="sm" className="flex items-center gap-3" onClick={goToCreate}>
                         <PlusIcon className="h-4 w-4" />
                         Crear
                     </Button>
                 </div>
-                {
-                    data && data.length ? (
+                {currentData && currentData.length ? (
+                    <>
                         <table className="w-full min-w-[640px] table-auto">
                             <thead>
                                 <tr>
                                     {[...columns, "acciones"].map((el) => (
-                                        <th
-                                            key={el}
-                                            className="border-b border-blue-gray-50 py-3 px-5 text-left"
-                                        >
-                                            <Typography
-                                                variant="small"
-                                                className="text-[11px] font-bold uppercase "
-                                            >
+                                        <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                            <Typography variant="small" className="text-[13px] font-bold uppercase">
                                                 {el}
                                             </Typography>
                                         </th>
@@ -51,59 +63,61 @@ const Table = ({ title, data,entity }) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {data.map(
-                                    (el) => (
-                                        <tr key={el.id}>
-                                            {
-                                                columns.map((column, index) => (
-                                                    <td className={className} key={column}>
-                                                        <Typography className="text-xs font-normal text-blue-gray-500">
-                                                            {el[columns[index]]}
-                                                        </Typography>
-                                                    </td>
-                                                ))
-                                            }
-                                            <td className={className}>
-                                                <div className="flex items-center gap-4">
-                                                    <div onClick={()=>sendDataToShow(el)} className="cursor-pointer">
-                                                        <Typography
-                                                            className="text-xs font-semibold text-blue-gray-600"
-                                                        >
-                                                            <EyeIcon className="h-4 w-4 hover:text-blue-500" />
-                                                        </Typography>
-                                                    </div>
-                                                    <Typography
-                                                        as="a"
-                                                        href="#"
-                                                        className="text-xs font-semibold text-blue-gray-600"
-                                                    >
-                                                        <PencilIcon className="h-4 w-4 hover:text-yellow-700" />
-                                                    </Typography>
-                                                    <Typography
-                                                        as="a"
-                                                        href="#"
-                                                        className="text-xs font-semibold text-blue-gray-600"
-                                                    >
-                                                        <TrashIcon className="h-4 w-4 hover:text-red-700" />
-                                                    </Typography>
-                                                </div>
+                                {currentData.map((el) => (
+                                    <tr key={el.id}>
+                                        {columns.map((column, index) => (
+                                            <td className={className} key={column}>
+                                                <Typography className="text-md font-normal text-blue-gray-500">
+                                                    {el[columns[index]]}
+                                                </Typography>
                                             </td>
-                                        </tr>
-                                    )
-
-                                )}
+                                        ))}
+                                        <td className={className}>
+                                            <div className="flex items-center gap-4">
+                                                <div onClick={() => sendDataToShow(el)} className="cursor-pointer">
+                                                    <EyeIcon className="h-4 w-4 hover:text-blue-500" />
+                                                </div>
+                                                <PencilIcon className="h-4 w-4 hover:text-yellow-700 cursor-pointer" />
+                                                <div onClick={() => removeItem(el.id)} className="cursor-pointer">
+                                                    <TrashIcon className="h-4 w-4 hover:text-red-700 cursor-pointer" />
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
-                    ) : <Typography
-                        as="a"
-                        href="#"
-                        className="text-lg font-semibold text-blue-gray-600 text-center"
-                    >
+
+                        {/* Paginación */}
+                        {
+                            totalPages !== 1 && (
+                                <div className="flex justify-center items-center gap-4 mt-4">
+                                    <Button variant="outlined" color="gray" size="sm" onClick={prevPage} disabled={currentPage === 1}>
+                                        Anterior
+                                    </Button>
+                                    <Typography variant="small" className="font-medium">
+                                        Página {currentPage} de {totalPages}
+                                    </Typography>
+                                    <Button variant="outlined" color="gray" size="sm" onClick={nextPage} disabled={currentPage === totalPages}>
+                                        Siguiente
+                                    </Button>
+                                </div>
+                            )
+                        }
+                    </>
+                ) : loading ? (
+                    <Typography variant="h6" color="blue-gray" className="text-center">
+                        Cargando...
+                    </Typography>
+                ) : (
+                    <Typography className="text-lg font-semibold text-blue-gray-600 text-center">
                         No hay datos
                     </Typography>
-                }
+                )}
+                <ToastContainer />
             </CardBody>
         </Card>
-    )
-}
-export default Table
+    );
+};
+
+export default Table;
