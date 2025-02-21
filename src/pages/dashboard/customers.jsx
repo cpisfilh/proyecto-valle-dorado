@@ -37,11 +37,10 @@ export function Customers() {
         maxLength: 9,
         minLength: 9
     }];
-    function getData() {
-        getClientes().then((res) => {
-            setCustomerData(res.data);
-            setLoading(false);
-        });
+    async function getData() {
+        const data = await getClientes()
+        setCustomerData(data.data);
+        setLoading(false);
     }
 
     useEffect(() => {

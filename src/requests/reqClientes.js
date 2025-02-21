@@ -1,6 +1,10 @@
-const BaseUrl = import.meta.env.VITE_BASE_URL;
+import axiosInstance from "./axiosConfig";
+
 export async function getClientes() {
-    const response = await fetch(`${BaseUrl}/cliente`);
-    const data = await response.json();
-    return data;
+    try {
+    const response = await axiosInstance.get("/cliente");
+    return response.data;
+    } catch (error) {
+     throw Error(error);
+    }
 }

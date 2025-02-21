@@ -1,25 +1,11 @@
-const BaseUrl = import.meta.env.VITE_BASE_URL;
+import axiosInstance from "./axiosConfig";
 
 export async function create(body,path) {
-    const response = await fetch(`${BaseUrl}/${path}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-    })
-    const data = await response.json();
-    return data;
+    const response = await axiosInstance.post(`${path}`, body);
+    return response.data;
 }
 
 export async function remove(body,path) {
-    const response = await fetch(`${BaseUrl}/${path}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-    })
-    const data = await response.json();
-    return data;
+    const response = await axiosInstance.post(`${path}`, body);
+    return response.data;
 }
