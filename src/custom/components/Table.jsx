@@ -21,6 +21,10 @@ const Table = ({ title, loading, data, entity, fields, getData }) => {
         navigate(`${currentUrl}/create`, { state: { fields, entity } });
     }
 
+    function goToEdit(data) {
+        navigate(`${currentUrl}/edit`, { state: { fields, data, entity } });
+    }
+
     function removeItem(id) {
         remove({ id }, entity + "/delete").then((response) => {
             if (response.message == "exito") {
@@ -33,6 +37,7 @@ const Table = ({ title, loading, data, entity, fields, getData }) => {
             }
         });
     }
+    
 
     return (
         <Card>
@@ -68,7 +73,7 @@ const Table = ({ title, loading, data, entity, fields, getData }) => {
                                         {columns.map((column, index) => (
                                             <td className={className} key={column}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
-                                                    {el[columns[index]]}
+                                                    {typeof el[column] === "boolean" ? (el[column] ? "Activo" : "Inactivo") : el[columns[index]]}
                                                 </Typography>
                                             </td>
                                         ))}
@@ -77,7 +82,9 @@ const Table = ({ title, loading, data, entity, fields, getData }) => {
                                                 <div onClick={() => sendDataToShow(el)} className="cursor-pointer">
                                                     <EyeIcon className="h-4 w-4 hover:text-blue-500" />
                                                 </div>
-                                                <PencilIcon className="h-4 w-4 hover:text-yellow-700 cursor-pointer" />
+                                                <div onClick={() => goToEdit(el)} className="cursor-pointer">
+                                                    <PencilIcon className="h-4 w-4 hover:text-yellow-700 cursor-pointer" />
+                                                </div>
                                                 <div onClick={() => removeItem(el.id)} className="cursor-pointer">
                                                     <TrashIcon className="h-4 w-4 hover:text-red-700 cursor-pointer" />
                                                 </div>

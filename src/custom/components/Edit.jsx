@@ -1,29 +1,32 @@
-import { create } from "@/requests/reqGenerics";
+import { update } from "@/requests/reqGenerics";
 import { Alert, Button, Card, CardBody, CardFooter, CardHeader, Input, Spinner, Typography } from "@material-tailwind/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 
-const Create = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+const Edit = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
     const fields = location.state?.fields || [];
     const entity = location.state?.entity || 'Entidad';
+    const data = location.state?.data || {};
+    const { register, handleSubmit, formState: { errors } } = useForm({
+        defaultValues: data
+    });
+    const [loading, setLoading] = useState(false);
 
     const currentUrl = window.location.pathname;
 
     const onSubmit = async (data) => {
         setLoading(true);
         try {
-            const response = await create(data, entity + "/create");
+            const response = await update(data, entity + "/edit");
             if (response.message == "exito") {
                 setTimeout(() => {
-                    navigate(`${currentUrl.replace("/create", "/show")}`, { state: { data: response.data, entity } });
+                    navigate(`${currentUrl.replace("/edit", "/show")}`, { state: { data: response.data, entity } });
                 }, 1500);
-                toast.success("Registro creado con exito!", {
+                toast.success("Registro actualizado con exito!", {
                     autoClose: 1300
                 })
             } else {
@@ -39,7 +42,7 @@ const Create = () => {
         <Card>
             <CardHeader variant="gradient" color="gray" className="mb-4 p-6 text-center rounded-t-lg">
                 <Typography variant="h5" color="white">
-                    CREAR {entity.toUpperCase()}
+                    EDITAR {entity.toUpperCase()}
                 </Typography>
             </CardHeader>
             <CardBody className="px-6 py-4">
@@ -63,12 +66,12 @@ const Create = () => {
                         </div>
                     ))}
                     <CardFooter className="flex justify-between">
-                        <Button type="button" color="gray" variant="outlined" onClick={() => { navigate(`${currentUrl.replace("/create", "")}`); }}>
+                        <Button type="button" color="gray" variant="outlined" onClick={()=>{navigate(`${currentUrl.replace("/edit", "")}`);}}>
                             Cancelar
                         </Button>
                         <Button type="submit" color="blue" disabled={loading}>
                             {
-                                loading ? <Spinner color="green" /> : `Crear ${entity}`
+                                loading ? <Spinner color="green" /> : `Guardar ${entity}`
                             }
                         </Button>
                     </CardFooter>
@@ -78,4 +81,4 @@ const Create = () => {
         </Card>
     );
 }
-export default Create
+export default Edit

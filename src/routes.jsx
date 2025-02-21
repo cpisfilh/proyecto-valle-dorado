@@ -11,6 +11,9 @@ import Customers from "./pages/dashboard/customers";
 import { Children } from "react";
 import Show from "./custom/components/Show";
 import Create from "./custom/components/Create";
+import Edit from "./custom/components/Edit";
+import Blocks from "./pages/dashboard/blocks";
+import Lots from "./pages/dashboard/lots";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -45,7 +48,7 @@ export const routes = [
           {
             name: "Editar Cliente",
             path: "edit",
-            element: <h1>Editar Cliente</h1>,
+            element: <Edit />,
           }
         ],
       },
@@ -65,13 +68,47 @@ export const routes = [
         icon: <HomeIcon {...icon} />,
         name: "Manzanas",
         path: "/manzanas",
-        element: <Home />,
+        element: <Blocks />,
+        children: [
+          {
+            name: "Mostrar Manzana",
+            path: "show",
+            element: <Show />,
+          },
+          {
+            name: "Crear Manzana",
+            path: "create",
+            element: <Create />,
+          },
+          {
+            name: "Editar Manzana",
+            path: "edit",
+            element: <Edit />,
+          }
+        ],
       },
       {
         icon: <HomeIcon {...icon} />,
         name: "Lotes",
         path: "/lotes",
-        element: <Home />,
+        element: <Lots />,
+        children: [
+          {
+            name: "Mostrar Lote",
+            path: "show",
+            element: <Show />,
+          },
+          {
+            name: "Crear Lote",
+            path: "create",
+            element: <Create />,
+          },
+          {
+            name: "Editar Manzana",
+            path: "edit",
+            element: <Edit />,
+          }
+        ],
       },
       {
         icon: <CalendarIcon {...icon} />,

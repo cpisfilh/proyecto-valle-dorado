@@ -21,7 +21,7 @@ const Show = () => {
         {data && Object.keys(data).map((key) => (
           <div key={key} className="flex justify-between items-center py-2">
             <Typography className="font-medium text-gray-600">{key.toUpperCase()}</Typography>
-            <Typography className="font-light text-gray-900">{data[key]}</Typography>
+            <Typography className="font-light text-gray-900">{typeof data[key] === "boolean" ? data[key] ? "Activo" : "Inactivo" : data[key] }</Typography>
           </div>
         ))}
       </CardBody>
