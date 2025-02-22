@@ -15,11 +15,10 @@ export function Footer({ brandName, brandLink, routes }) {
             target="_blank"
             className="transition-colors hover:text-blue-500 font-bold"
           >
-            {brandName}
-          </a>{" "}
-          for a better web.
+            kremin
+          </a>
         </Typography>
-        <ul className="flex items-center gap-4">
+        {/* <ul className="flex items-center gap-4">
           {routes.map(({ name, path }) => (
             <li key={name}>
               <Typography
@@ -33,7 +32,7 @@ export function Footer({ brandName, brandLink, routes }) {
               </Typography>
             </li>
           ))}
-        </ul>
+        </ul> */}
       </div>
     </footer>
   );
