@@ -14,6 +14,7 @@ import Create from "./custom/components/Create";
 import Edit from "./custom/components/Edit";
 import Blocks from "./pages/dashboard/blocks";
 import Lots from "./pages/dashboard/lots";
+import Properties from "./pages/dashboard/property";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -56,7 +57,24 @@ export const routes = [
         icon: <MapPinIcon {...icon} />,
         name: "Predios",
         path: "/predios",
-        element: <Home />,
+        element: <Properties />,
+        children: [
+          {
+            name: "Mostrar Predio",
+            path: "show",
+            element: <Show />,
+          },
+          {
+            name: "Crear Predio",
+            path: "create",
+            element: <Create />,
+          },
+          {
+            name: "Editar Predio",
+            path: "edit",
+            element: <Edit />,
+          }
+        ],
       },
       {
         icon: <BanknotesIcon {...icon} />,

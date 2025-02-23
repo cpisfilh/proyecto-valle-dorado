@@ -5,7 +5,7 @@ import { Button, Card, CardBody, CardHeader, Typography } from "@material-tailwi
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 
-const Table = ({ title, loading, data, entity, fields, getData }) => {
+const Table = ({ title, loading, data, entity, fields, getData, relatedData }) => {
     const navigate = useNavigate();
     const columns = data && data.length ? Object.keys(data[0]).slice(0, 3) : [];
     const className = "py-3 px-5";
@@ -14,11 +14,11 @@ const Table = ({ title, loading, data, entity, fields, getData }) => {
     const { currentData, currentPage, totalPages, nextPage, prevPage } = usePagination(data, 5); // 5 elementos por página
 
     function sendDataToShow(data) {
-        navigate(`${currentUrl}/show`, { state: { data, entity } });
+        navigate(`${currentUrl}/show`, { state: { data, entity,relatedData,fields } });
     }
 
     function goToCreate() {
-        navigate(`${currentUrl}/create`, { state: { fields, entity } });
+        navigate(`${currentUrl}/create`, { state: { fields, entity, relatedData } });
     }
 
     function goToEdit(data) {
@@ -61,7 +61,7 @@ const Table = ({ title, loading, data, entity, fields, getData }) => {
                                     {[...columns, "acciones"].map((el) => (
                                         <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="small" className="text-[13px] font-bold uppercase">
-                                                {el}
+                                                {el.includes("_id") ? el.split("_id")[0] : el}
                                             </Typography>
                                         </th>
                                     ))}
@@ -73,7 +73,10 @@ const Table = ({ title, loading, data, entity, fields, getData }) => {
                                         {columns.map((column, index) => (
                                             <td className={className} key={column}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
-                                                    {typeof el[column] === "boolean" ? (el[column] ? "Activo" : "Inactivo") : el[columns[index]]}
+                                                    {
+                                                        typeof el[column] === "boolean" ? (el[column] ? "Activo" : "Inactivo") : 
+                                                        column.includes("_id") ? (relatedData[column.split("_id")[0]]?.find(item => item.id === el[column])?.valor || "-") : el[columns[index]]
+                                                    }
                                                 </Typography>
                                             </td>
                                         ))}
