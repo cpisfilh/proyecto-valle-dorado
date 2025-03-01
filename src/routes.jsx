@@ -2,19 +2,19 @@ import {
   BanknotesIcon,
   CalendarIcon,
   HomeIcon,
+  MapIcon,
   MapPinIcon,
   UserIcon
 } from "@heroicons/react/24/solid";
 import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
-import { SignIn, SignUp } from "@/pages/auth";
 import Customers from "./pages/dashboard/customers";
-import { Children } from "react";
 import Show from "./custom/components/Show";
 import Create from "./custom/components/Create";
 import Edit from "./custom/components/Edit";
 import Blocks from "./pages/dashboard/blocks";
 import Lots from "./pages/dashboard/lots";
 import Properties from "./pages/dashboard/property";
+import PropertiesXCustomer from "./pages/dashboard/propertiesxcustomer";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -75,6 +75,29 @@ export const routes = [
             element: <Edit />,
           }
         ],
+      },
+      {
+        icon: <MapIcon {...icon} />,
+        name: "Predios x Clientes",
+        path: "/prediosxclientes",
+        element: <PropertiesXCustomer />,
+        // children: [
+        //   {
+        //     name: "Predios por Cliente",
+        //     path: "search",
+        //     element: <PropertiesByClient />,
+        //   },
+          // {
+          //   name: "Crear Manzana",
+          //   path: "create",
+          //   element: <Create />,
+          // },
+          // {
+          //   name: "Editar Manzana",
+          //   path: "edit",
+          //   element: <Edit />,
+          // }
+        // ],
       },
       {
         icon: <BanknotesIcon {...icon} />,

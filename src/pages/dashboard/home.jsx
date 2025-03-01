@@ -4,21 +4,16 @@ import {
   Button,
 } from "@material-tailwind/react";
 import { StatisticsCard } from "@/widgets/cards";
-import { StatisticsChart } from "@/widgets/charts";
-import {
-  statisticsChartsData,
-  projectsTableData,
-  ordersOverviewData,
-} from "@/data";
-import {
-  ClockIcon, BanknotesIcon,
+import { BanknotesIcon,
   UserPlusIcon,
   UsersIcon,
   ChartBarIcon,
+  CalendarIcon,
+  DocumentChartBarIcon,
 } from "@heroicons/react/24/solid";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import Recibo from "../../pdfs/Recibo";
 import ReciboModal from "../../widgets/me/ReciboModal";
+import * as XLSX from "xlsx";
+import CronogramaModal from "@/widgets/me/CronogramaModal";
 
 export const statisticsCardsData = [
   {
@@ -69,6 +64,8 @@ export const statisticsCardsData = [
 
 export function Home() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalCronogramaOpen, setModalCronogramaOpen] = useState(false);
+
   return (
     <div className="mt-12">
       <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
@@ -108,8 +105,10 @@ export function Home() {
           />
         ))}
       </div> */}
-      <Button onClick={() => setModalOpen(true)}>Generar Recibo</Button>
+      <Button className="flex items-center gap-3" onClick={() => setModalOpen(true)}>Generar Recibo <DocumentChartBarIcon strokeWidth={2} className="h-4 w-4 " /></Button>
+      <Button className="flex items-center gap-3 mt-2" onClick={() => setModalCronogramaOpen(true)}>Generar Cronograma de pagos <CalendarIcon strokeWidth={2} className="h-4 w-4 " /></Button>
       <ReciboModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      <CronogramaModal isOpen={modalCronogramaOpen} onClose={() => setModalCronogramaOpen(false)} />
       {/* <div className="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-3">
         <Card className="overflow-hidden xl:col-span-2 border border-blue-gray-100 shadow-sm">
           <CardHeader
