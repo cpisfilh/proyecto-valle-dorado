@@ -146,7 +146,7 @@ const CronogramaModal = ({ isOpen, onClose }) => {
     
     return (
         <Dialog open={isOpen} handler={onClose} size="lg">
-            <DialogHeader>Ingresar Recibo</DialogHeader>
+            <DialogHeader>Datos para generar cronograma</DialogHeader>
             <DialogBody className="space-y-4 overflow-auto max-h-[80vh]">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 {/* Nombre Archivo */}
