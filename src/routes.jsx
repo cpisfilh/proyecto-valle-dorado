@@ -18,6 +18,9 @@ import PropertiesXCustomer from "./pages/dashboard/propertiesxcustomer";
 import Payments from "./pages/dashboard/payments";
 import CreatePayment from "./custom/components/pagos/CreatePayment";
 import EditPayment from "./custom/components/pagos/EditPayment";
+import Quotas from "./pages/dashboard/quotas";
+import CreateQuota from "./custom/components/cuotas/CreateQuota";
+import EditQuota from "./custom/components/cuotas/EditQuota";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -150,19 +153,14 @@ export const routes = [
         element: <Lots />,
         children: [
           {
-            name: "Mostrar Lote",
-            path: "show",
-            element: <Show />,
-          },
-          {
-            name: "Crear Lote",
+            name: "Crear Pago",
             path: "create",
-            element: <Create />,
+            element: <CreatePayment />,
           },
           {
-            name: "Editar Manzana",
+            name: "Editar Pago",
             path: "edit",
-            element: <Edit />,
+            element: <EditPayment />,
           }
         ],
       },
@@ -170,7 +168,19 @@ export const routes = [
         icon: <CalendarIcon {...icon} />,
         name: "Cuotas",
         path: "/cuotas",
-        element: <Home />,
+        element: <Quotas />,
+        children: [
+          {
+            name: "Crear Cuota",
+            path: "create",
+            element: <CreateQuota />,
+          },
+          {
+            name: "Editar Cuota",
+            path: "edit",
+            element: <EditQuota />,
+          }
+        ],
       }
       // {
       //   icon: <UserCircleIcon {...icon} />,
