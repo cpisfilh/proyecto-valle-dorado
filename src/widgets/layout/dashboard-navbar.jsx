@@ -103,6 +103,13 @@ export function DashboardNavbar() {
           <IconButton
             variant="text"
             color="blue-gray"
+            onClick={() => setOpenSidenav(dispatch, true)}
+          >
+            <Bars3Icon className="h-5 w-5 text-blue-gray-500" />
+          </IconButton>
+          <IconButton
+            variant="text"
+            color="blue-gray"
             onClick={() => setOpenConfigurator(dispatch, true)}
           >
             <Cog6ToothIcon className="h-5 w-5 text-blue-gray-500" />
