@@ -6,8 +6,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
 
-const currentUrl = window.location.pathname;
-
 const CreatePayment = () => {
     const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm({
         defaultValues: {
@@ -28,6 +26,7 @@ const CreatePayment = () => {
     const clientes = watch("clientes");
 
     async function onSubmit(data) {
+        const currentUrl = window.location.pathname;
         setLoading(true);
         try {
             const resp = await postCreatePago(data);
@@ -39,7 +38,7 @@ const CreatePayment = () => {
                         confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
                     }
                 })
-                navigate("/pagos");
+                navigate(`${currentUrl.replace("/create", "")}`);
             }else{
                 Swal.fire({
                     icon: 'error',
@@ -156,7 +155,7 @@ const CreatePayment = () => {
                     </div>
 
                     <CardFooter className="flex justify-between">
-                        <Button type="button" color="gray" variant="outlined" onClick={() => { navigate(`${currentUrl.replace("/create", "")}`); }}>
+                        <Button type="button" color="gray" variant="outlined" onClick={() => {const currentUrl = window.location.pathname; navigate(`${currentUrl.replace("/create", "")}`); }}>
                             Cancelar
                         </Button>
                         <Button type="submit" color="blue" disabled={loading}>

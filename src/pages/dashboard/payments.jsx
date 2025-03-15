@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Button, Card, CardBody, CardHeader, Input, Typography } from "@material-tailwind/react";
 import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { ToastContainer } from "react-toastify";
-import { getPrediosSelectModal} from "@/requests/reqPredios";
+import { getPrediosSelectModal } from "@/requests/reqPredios";
 import usePagination from "@/customhooks/usePagination";
-import { getPagos } from "@/requests/reqPagos";
+import { getPagos, postDeletePago } from "@/requests/reqPagos";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { getClientes } from "@/requests/reqClientes";
+import Swal from "sweetalert2";
 
 export function Payments() {
     const className = "py-3 px-5";
@@ -18,25 +19,60 @@ export function Payments() {
     const navigate = useNavigate();
     const { currentData, currentPage, totalPages, nextPage, prevPage } = usePagination(results, 5);
 
-    function removeItem(id) {
-
+    async function removeItem(id) {
+        try {
+            const resp = await postDeletePago(id);
+            if (resp.message == "exito") {
+                Swal.fire({
+                    icon: 'success',
+                    text: 'Pago eliminado!',
+                    customClass: {
+                        confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
+                    }
+                }).then(() => {
+                    getDataPagos();
+                })
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Ocurrio un error!',
+                    customClass: {
+                        confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                    }
+                })
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                text: 'Ocurrio un error!',
+                customClass: {
+                    confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                }
+            })
+        }
     }
 
     function goToCreate() {
         navigate("create", { state: { resultsPredios, resultsClientes } });
     }
-    useEffect(() => {
-        async function getDataPagos() {
-            try {
-                setLoading(true);
-                const data = await getPagos();
-                setResults(data.data);
-            } catch (error) {
-                throw Error(error);
-            } finally {
-                setLoading(false);
-            }
+
+    function goToEdit(element) {
+        navigate("edit", { state: { resultsPredios, resultsClientes,data: element } });
+    }
+
+    async function getDataPagos() {
+        try {
+            setLoading(true);
+            const data = await getPagos();
+            setResults(data.data);
+        } catch (error) {
+            throw Error(error);
+        } finally {
+            setLoading(false);
         }
+    }
+    useEffect(() => {
+
         async function getDataPredios() {
             try {
                 // setLoading(true);
@@ -59,10 +95,13 @@ export function Payments() {
                 // setLoading(false);
             }
         }
-        getDataPagos();
         getDataPredios();
         getDataClientes();
     }, []);
+
+    useEffect(() => {
+        isLotesRoute && getDataPagos();
+    }, [navigate]);
 
     const isLotesRoute = location.pathname.endsWith("/pagos");
     return (
@@ -149,27 +188,27 @@ export function Payments() {
                                             <td className={className}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
                                                     {
-                                                        el.precio_total
+                                                        Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(el.precio_total)
                                                     }
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
                                                     {
-                                                        el.cuota_inicial
+                                                        Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(el.cuota_inicial)
                                                     }
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
                                                     {
-                                                        el.saldo
+                                                        Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(el.saldo)
                                                     }
                                                 </Typography>
                                             </td>
                                             <td className={className + " flex gap-2"}>
                                                 <div
-                                                    // onClick={() => goToEdit(el)} 
+                                                    onClick={() => goToEdit(el)} 
                                                     className="cursor-pointer">
                                                     <PencilIcon className="h-4 w-4 hover:text-yellow-700 cursor-pointer" />
                                                 </div>

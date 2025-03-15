@@ -17,6 +17,7 @@ import Properties from "./pages/dashboard/property";
 import PropertiesXCustomer from "./pages/dashboard/propertiesxcustomer";
 import Payments from "./pages/dashboard/payments";
 import CreatePayment from "./custom/components/pagos/CreatePayment";
+import EditPayment from "./custom/components/pagos/EditPayment";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -115,7 +116,7 @@ export const routes = [
           {
             name: "Editar Predio",
             path: "edit",
-            element: <Edit />,
+            element: <EditPayment />,
           }
         ],
       },
