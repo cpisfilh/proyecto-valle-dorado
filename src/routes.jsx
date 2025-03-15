@@ -15,6 +15,8 @@ import Blocks from "./pages/dashboard/blocks";
 import Lots from "./pages/dashboard/lots";
 import Properties from "./pages/dashboard/property";
 import PropertiesXCustomer from "./pages/dashboard/propertiesxcustomer";
+import Payments from "./pages/dashboard/payments";
+import CreatePayment from "./custom/components/pagos/CreatePayment";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -103,7 +105,19 @@ export const routes = [
         icon: <BanknotesIcon {...icon} />,
         name: "Pagos",
         path: "/pagos",
-        element: <Home />,
+        element: <Payments />,
+        children: [
+          {
+            name: "Crear Pago",
+            path: "create",
+            element: <CreatePayment />,
+          },
+          {
+            name: "Editar Predio",
+            path: "edit",
+            element: <Edit />,
+          }
+        ],
       },
       {
         icon: <HomeIcon {...icon} />,

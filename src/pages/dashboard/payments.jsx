@@ -1,117 +1,84 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, CardBody, CardHeader, Input, Typography } from "@material-tailwind/react";
-import { MagnifyingGlassIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { ToastContainer } from "react-toastify";
-import { getPrediosSelectModal, getPrediosxCustomer, postRemoveRelateClientProperty } from "@/requests/reqPredios";
+import { getPrediosSelectModal} from "@/requests/reqPredios";
 import usePagination from "@/customhooks/usePagination";
-import Swal from "sweetalert2";
-import PredioxClienteModal from "@/widgets/me/predioxcliente/PredioxClienteModal";
+import { getPagos } from "@/requests/reqPagos";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { getClientes } from "@/requests/reqClientes";
 
-export function PropertiesXCustomer() {
+export function Payments() {
     const className = "py-3 px-5";
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState([]);
-    const [isOpen, setIsOpen] = useState(false);
-    const { currentData, currentPage, totalPages, nextPage, prevPage } = usePagination(results, 5);
     const [resultsClientes, setResultsClientes] = useState([]);
     const [resultsPredios, setResultsPredios] = useState([]);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { currentData, currentPage, totalPages, nextPage, prevPage } = usePagination(results, 5);
 
-    async function searchData(name) {
-        if (!name || name.length == 0) return;
-        setLoading(true);
-        const data = await getPrediosxCustomer(name);
-        if (data.message == "exito" && data.data.length == 0) {
-            Swal.fire({
-                icon: 'error',
-                text: 'El cliente no tiene predios registrados!',
-                customClass: {
-                    confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
-                }
-            })
-        }
-        setResults(data.data);
-        setLoading(false);
+    function removeItem(id) {
+
     }
 
-    async function removeItem(id) {
-        try {
-            const resp = await postRemoveRelateClientProperty(id);
-            if (resp.message == "exito") {
-                Swal.fire({
-                    icon: 'success',
-                    text: 'Relación eliminada!',
-                    customClass: {
-                        confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
-                    }
-                }).then(() => {
-                    getDataPredios2();
-                })
-            }else{
-                Swal.fire({
-                    icon: 'error',
-                    text: 'Ocurrio un error!',
-                    customClass: {
-                        confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
-                    }
-                })
-            }
-        } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                text: 'Ocurrio un error!',
-                customClass: {
-                    confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
-                }
-            })
-        }
+    function goToCreate() {
+        navigate("create", { state: { resultsPredios, resultsClientes } });
     }
-    function handleClose() {
-        setIsOpen(false);
-    }
-    async function getDataPredios2() {
-        const data = await getPrediosxCustomer("");
-        setResults(data.data);
-    }
-
     useEffect(() => {
+        async function getDataPagos() {
+            try {
+                setLoading(true);
+                const data = await getPagos();
+                setResults(data.data);
+            } catch (error) {
+                throw Error(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        async function getDataPredios() {
+            try {
+                // setLoading(true);
+                const data = await getPrediosSelectModal();
+                setResultsPredios(data.data);
+            } catch (error) {
+                throw Error(error);
+            } finally {
+                // setLoading(false);
+            }
+        }
         async function getDataClientes() {
-            const data = await getClientes();
-            setResultsClientes(data.data);
+            try {
+                // setLoading(true);
+                const data = await getClientes();
+                setResultsClientes(data.data);
+            } catch (error) {
+                throw Error(error);
+            } finally {
+                // setLoading(false);
+            }
         }
+        getDataPagos();
+        getDataPredios();
         getDataClientes();
-        async function getDataPredios1() {
-            const data = await getPrediosSelectModal();
-            setResultsPredios(data.data);
-        }
-        getDataPredios1();
-        getDataPredios2();
     }, []);
+
+    const isLotesRoute = location.pathname.endsWith("/pagos");
     return (
         <div className="mx-auto my-20 flex max-w-screen-lg flex-col gap-8">
-            <Card>
+            {isLotesRoute && <Card>
                 <CardHeader variant="gradient" color="gray" className="mb-8 p-6">
                     <Typography variant="h5" color="white" className="text-center">
-                        Predios por Cliente
+                        Pagos
                     </Typography>
                 </CardHeader>
                 <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
                     <div className="flex justify-between px-4">
-                        <Button variant="gradient" color="green" size="md" className="flex items-center gap-3" onClick={() => setIsOpen(true)}>
+                        <Button variant="gradient" color="green" size="sm" className="flex items-center gap-3" onClick={goToCreate}>
                             <PlusIcon className="h-4 w-4" />
-                            Relacionar
+                            Crear
                         </Button>
-                        <input
-                            className="block rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                            autoComplete="new-password"
-                            placeholder="Buscar"
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                    searchData(e.target.value);
-                                }
-                            }}
-
-                        />
                     </div>
                     {/* <div className="flex justify-between px-4 mt-4 gap-2">
                         <Input label="Buscar predios para..." size="md"
@@ -130,27 +97,27 @@ export function PropertiesXCustomer() {
                                     <tr>
                                         <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="small" className="text-[13px] font-bold uppercase">
-                                                ID
+                                                Predio
                                             </Typography>
                                         </th>
                                         <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="small" className="text-[13px] font-bold uppercase">
-                                                Nombre Cliente
+                                                Propietarios
                                             </Typography>
                                         </th>
                                         <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="small" className="text-[13px] font-bold uppercase">
-                                                Apellido Cliente
+                                                Precio Total
                                             </Typography>
                                         </th>
                                         <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="small" className="text-[13px] font-bold uppercase">
-                                                Manzana
+                                                Cuota Inicial
                                             </Typography>
                                         </th>
                                         <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="small" className="text-[13px] font-bold uppercase">
-                                                Lote
+                                                Saldo
                                             </Typography>
                                         </th>
                                         <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
@@ -166,39 +133,46 @@ export function PropertiesXCustomer() {
                                             <td className={className}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
                                                     {
-                                                        el.id
+                                                        el.predio.manzana + "-" + el.predio.lote
+                                                    }
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                {
+                                                    el.cliente_pago && el.cliente_pago.map((el) => (
+                                                        <Typography key={el.cliente_id} className="text-md font-normal text-blue-gray-500">
+                                                            {el.cliente_dni + " - " + el.cliente_nombre + " " + el.cliente_apellido}
+                                                        </Typography>
+                                                    ))
+                                                }
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-md font-normal text-blue-gray-500">
+                                                    {
+                                                        el.precio_total
                                                     }
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
                                                     {
-                                                        el.nombre_cliente
+                                                        el.cuota_inicial
                                                     }
                                                 </Typography>
                                             </td>
                                             <td className={className}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
                                                     {
-                                                        el.apellido_cliente
+                                                        el.saldo
                                                     }
                                                 </Typography>
                                             </td>
-                                            <td className={className}>
-                                                <Typography className="text-md font-normal text-blue-gray-500">
-                                                    {
-                                                        el.manzana
-                                                    }
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
-                                                <Typography className="text-md font-normal text-blue-gray-500">
-                                                    {
-                                                        el.lote
-                                                    }
-                                                </Typography>
-                                            </td>
-                                            <td className={className}>
+                                            <td className={className + " flex gap-2"}>
+                                                <div
+                                                    // onClick={() => goToEdit(el)} 
+                                                    className="cursor-pointer">
+                                                    <PencilIcon className="h-4 w-4 hover:text-yellow-700 cursor-pointer" />
+                                                </div>
                                                 <div onClick={() => removeItem(el.id)} className="cursor-pointer">
                                                     <TrashIcon className="h-4 w-4 hover:text-red-700 cursor-pointer" />
                                                 </div>
@@ -238,9 +212,10 @@ export function PropertiesXCustomer() {
                     <ToastContainer />
                 </CardBody>
             </Card>
-            <PredioxClienteModal isOpen={isOpen} onClose={handleClose} dataClientes={resultsClientes} dataPredios={resultsPredios} refresh={getDataPredios2} />
+            }
+            <Outlet />
         </div>
     );
 }
 
-export default PropertiesXCustomer;
+export default Payments;

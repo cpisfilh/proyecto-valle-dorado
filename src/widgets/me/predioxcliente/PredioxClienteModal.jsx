@@ -6,7 +6,7 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 import { postRelateClientProperty } from "@/requests/reqPredios";
 
-const PredioxClienteModal = ({ isOpen, onClose, dataClientes, dataPredios }) => {
+const PredioxClienteModal = ({ isOpen, onClose, dataClientes, dataPredios,refresh }) => {
     const { handleSubmit, register, formState: { errors }, reset } = useForm({
         predio:"",
         cliente:""
@@ -27,8 +27,10 @@ const PredioxClienteModal = ({ isOpen, onClose, dataClientes, dataPredios }) => 
                         confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
                     },
                     target: document.getElementById('pxcParentModal')
+                }).then(() => {
+                    onClose()
+                    refresh()
                 })
-                onClose()
             } else {
                 Swal.fire({
                     icon: 'error',

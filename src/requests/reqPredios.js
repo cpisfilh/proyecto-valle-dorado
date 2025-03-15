@@ -36,3 +36,12 @@ export async function postRelateClientProperty(idCliente,idPredio) {
     }
 }
 
+export async function postRemoveRelateClientProperty(id) {
+    try {
+    const response = await axiosInstance.post("/predio/deleteXCustomer", { id });
+    return response.data;
+    } catch (error) {
+     throw Error(error);
+    }
+}
+
