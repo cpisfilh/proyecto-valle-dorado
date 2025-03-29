@@ -1,29 +1,32 @@
 import Recibo from "@/pdfs/Recibo";
 import { Dialog, DialogHeader, DialogBody, DialogFooter, Input, Button, Select, Option } from "@material-tailwind/react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { format, parseISO } from "date-fns";
+import { use } from "react";
 
 const manzanas = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"];
 const lotes = Array.from({ length: 20 }, (_, i) => String(i + 1).padStart(2, "0"));
 const tiposPago = ["Transferencia Bancaria", "Depósito en Cuenta", "Cheque de Gerencia"];
 
-const ReciboModal = ({ isOpen, onClose }) => {
-    const { control, handleSubmit, register, formState: { errors }, watch, setValue } = useForm({
+const ReciboModal = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
+    const { control, handleSubmit, register, formState: { errors }, watch, reset } = useForm({
         defaultValues: {
-            tipoPago: "",
-            fecha: "",
-            montoRecibo: "",
+            tipoPago: "Transferencia Bancaria",
+            fecha: dataCuota?.fecha_pago ? format(parseISO(dataCuota.fecha_pago), "dd-MM-yyyy") : "",
+            montoRecibo: dataCuota && dataCuota.monto && Number(dataCuota.monto).toLocaleString("en-US", { minimumFractionDigits: 2 }),
             montoReciboTexto: "",
             centavosRecibo: "00",
-            montoTotal: "",
+            montoTotal: dataGeneral && dataGeneral.precio_total && Number(dataGeneral.precio_total).toLocaleString("en-US", { minimumFractionDigits: 2 }),
             montoTotalTexto: "",
             centavosTotal: "00",
             predio: {
-                manzana: "",
-                lote: "",
+                manzana: dataGeneral && dataGeneral.predio.manzana,
+                lote: dataGeneral && dataGeneral.predio.lote,
             },
-            persona: []
+            persona: dataGeneral && dataGeneral.cliente_pago.map((persona) => ({ nombre: persona.cliente_nombre + " " + persona.cliente_apellido, dni: persona.cliente_dni })),
+            concepto: "Pago de Cuota",
         }
     });
 
@@ -36,9 +39,8 @@ const ReciboModal = ({ isOpen, onClose }) => {
         console.log("Datos del recibo:", data);
     };
 
-    const formValues = watch(); // Obtenemos todos los valores del formulario
-
     const isFormComplete = () => {
+        const formValues = watch(); // Obtenemos todos los valores del formulario
         return (
             formValues.tipoPago &&
             formValues.fecha &&
@@ -191,7 +193,7 @@ const ReciboModal = ({ isOpen, onClose }) => {
                                         {...register(`persona.${index}.dni`, { required: "Este campo es obligatorio" })}
                                     />
                                     <div className="flex justify-end">
-                                    <Button color="red" size="sm" className="w-24" onClick={() => remove(index)}>X</Button>
+                                        <Button color="red" size="sm" className="w-24" onClick={() => remove(index)}>X</Button>
                                     </div>
                                 </div>
                             ))}
@@ -202,18 +204,18 @@ const ReciboModal = ({ isOpen, onClose }) => {
 
                     <DialogFooter className="space-x-2 flex flex-wrap">
                         <Button color="gray" variant="outlined" onClick={onClose}>Cancelar</Button>
-                        <Button type="submit" color="blue">Guardar</Button>
+                        {/* <Button type="submit" color="blue">Guardar</Button> */}
                         {
                             isFormComplete() && (
                                 <PDFDownloadLink
-                            document={<Recibo data={watch()} />}
-                            fileName="recibo.pdf"
-                        >
-                            <Button variant="gradient" color="green">Generar Recibo</Button>
-                        </PDFDownloadLink>
+                                    document={<Recibo data={watch()} />}
+                                    fileName="recibo.pdf"
+                                >
+                                    <Button variant="gradient" color="green">Generar Recibo</Button>
+                                </PDFDownloadLink>
                             )
                         }
-                        
+
                     </DialogFooter>
                 </form>
             </DialogBody>

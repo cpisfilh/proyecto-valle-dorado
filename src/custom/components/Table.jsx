@@ -46,13 +46,14 @@ const Table = ({ title, loading, data, entity, fields, getData, relatedData }) =
                     {title.toUpperCase()}
                 </Typography>
             </CardHeader>
-            <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                <div className="flex justify-between px-4">
+            <div className="flex justify-between px-4">
                     <Button variant="gradient" color="green" size="sm" className="flex items-center gap-3" onClick={goToCreate}>
                         <PlusIcon className="h-4 w-4" />
                         Crear
                     </Button>
                 </div>
+            <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                
                 {currentData && currentData.length ? (
                     <>
                         <table className="w-full min-w-[640px] table-auto">

@@ -32,7 +32,7 @@ const EditQuota = () => {
       if (resp.message === "exito") {
         Swal.fire({
           icon: 'success',
-          text: 'Pago registrado con éxito!',
+          text: 'Pago actualizado con éxito!',
           customClass: {
             confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
           }
@@ -118,7 +118,7 @@ const EditQuota = () => {
               Cancelar
             </Button>
             <Button type="submit" color="blue" disabled={loading}>
-              {loading ? <Spinner color="green" /> : "Crear Cuota"}
+              {loading ? <Spinner color="green" /> : "Editar Cuota"}
             </Button>
           </CardFooter>
           <ToastContainer />

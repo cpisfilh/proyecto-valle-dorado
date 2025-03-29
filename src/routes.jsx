@@ -21,6 +21,7 @@ import EditPayment from "./custom/components/pagos/EditPayment";
 import Quotas from "./pages/dashboard/quotas";
 import CreateQuota from "./custom/components/cuotas/CreateQuota";
 import EditQuota from "./custom/components/cuotas/EditQuota";
+import Schedule from "./pages/dashboard/schedule";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -120,6 +121,11 @@ export const routes = [
             name: "Editar Predio",
             path: "edit",
             element: <EditPayment />,
+          },
+          {
+            name: "Cronograma",
+            path: "cronograma",
+            element: <Schedule />,
           }
         ],
       },
@@ -181,7 +187,7 @@ export const routes = [
             element: <EditQuota />,
           }
         ],
-      }
+      },
       // {
       //   icon: <UserCircleIcon {...icon} />,
       //   name: "profile",

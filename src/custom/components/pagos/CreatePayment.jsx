@@ -12,6 +12,7 @@ const CreatePayment = () => {
             clientes: [""], // Iniciamos con un cliente vacío
             precioTotal: null,
             cuotaInicial: null,
+            numeroCuotas: null,
             saldo: null,
             predio: ""
         }
@@ -124,6 +125,13 @@ const CreatePayment = () => {
                         <label className="block text-gray-700 font-bold">PRECIO TOTAL</label>
                         <Input type="number" {...register("precioTotal", { required: "El campo Precio Total es requerido" })} />
                         {errors.precioTotal && <Typography className="text-red-500 text-sm font-bold">{errors.precioTotal.message}</Typography>}
+                    </div>
+
+                    {/* Número de cuotas */}
+                    <div className="mb-4">
+                        <label className="block text-gray-700 font-bold">NÚMERO DE CUOTAS</label>
+                        <Input type="number" {...register("numeroCuotas", { required: "El campo Número de cuotas es requerido" })} />
+                        {errors.numeroCuotas && <Typography className="text-red-500 text-sm font-bold">{errors.numeroCuotas.message}</Typography>}
                     </div>
 
                     {/* Cuota Inicial */}

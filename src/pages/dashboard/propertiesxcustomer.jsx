@@ -95,8 +95,7 @@ export function PropertiesXCustomer() {
                         Predios por Cliente
                     </Typography>
                 </CardHeader>
-                <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                    <div className="flex justify-between px-4">
+                <div className="flex justify-between px-4">
                         <Button variant="gradient" color="green" size="md" className="flex items-center gap-3" onClick={() => setIsOpen(true)}>
                             <PlusIcon className="h-4 w-4" />
                             Relacionar
@@ -113,6 +112,8 @@ export function PropertiesXCustomer() {
 
                         />
                     </div>
+                <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                    
                     {/* <div className="flex justify-between px-4 mt-4 gap-2">
                         <Input label="Buscar predios para..." size="md"
                             containerProps={{ className: "w-18 min-w-[100px]" }}

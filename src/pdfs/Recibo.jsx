@@ -45,8 +45,21 @@ const styles = StyleSheet.create({
 });
 
 // Componente del recibo
-const Recibo = ({ data }) => (
-    <Document>
+const Recibo = ({ data }) => {
+    if (!data) {
+        return (
+            <Document>
+                <Page size="A4" style={styles.page}></Page>
+                    <View style={styles.header}>
+                        <Image src="/img/logo_pdf.png" style={styles.logo} />
+                        <Text style={styles.title}>RECIBO DE DINERO</Text>
+                    </View>
+            </Document>
+        );
+    }
+
+    return (
+        <Document>
         <Page size="A4" style={styles.page}>
             <View style={styles.header}>
                 <Image src="/img/logo_pdf.png" style={styles.logo} />
@@ -56,7 +69,7 @@ const Recibo = ({ data }) => (
                 <Text style={styles.text}>
                     Recibo de {" "}
                     {
-                        data.persona.map((persona, index, array) => (
+                        data.persona && data.persona.map((persona, index, array) => (
                             <Text key={index}>
                                 <Text style={styles.bold}>{persona.nombre}</Text> identificado(a) con DNI N° <Text style={styles.bold}>{persona.dni}</Text>
                                 {index < array.length - 2 && ", "} {/* Agrega una coma si no es el penúltimo */}
@@ -65,7 +78,7 @@ const Recibo = ({ data }) => (
                         ))
                     }
                     , la cantidad de <Text style={styles.bold}>S/ {" "}{data.montoRecibo}</Text>{" "}
-                    ({`${data.montoReciboTexto} nuevos soles con ${data.centavosRecibo}/100`}), por concepto de Cuota Inicial por el {" "}
+                    ({`${data.montoReciboTexto} nuevos soles con ${data.centavosRecibo}/100`}), por concepto de {data.concepto} por el {" "}
                     <Text style={styles.bold}>lote {data.predio.lote} mz. {data.predio.manzana} del proyecto para casas
                         de campo Valle Dorado</Text>, ubicado en distrito y provincia de Sullana, departamento de Plura
                     (Predio rústico La Capilla RC 18882).
@@ -82,6 +95,7 @@ const Recibo = ({ data }) => (
             </View>
         </Page>
     </Document>
-);
+    )
+}
 
 export default Recibo;

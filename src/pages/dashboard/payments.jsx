@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, CardBody, CardHeader, Input, Typography } from "@material-tailwind/react";
-import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { CalendarDaysIcon, PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { ToastContainer } from "react-toastify";
 import { getPrediosSelectModal } from "@/requests/reqPredios";
 import usePagination from "@/customhooks/usePagination";
@@ -21,34 +21,58 @@ export function Payments() {
 
     async function removeItem(id) {
         try {
-            const resp = await postDeletePago(id);
-            if (resp.message == "exito") {
+            const result = await Swal.fire({
+                icon: 'question',
+                text: '¿Desea eliminar el pago?',
+                showDenyButton: true,
+                confirmButtonText: 'Si',
+                denyButtonText: 'No',
+                customClass: {
+                    confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600',
+                    denyButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                }
+            });
+
+            if (result.isConfirmed) {
                 Swal.fire({
-                    icon: 'success',
-                    text: 'Pago eliminado!',
-                    customClass: {
-                        confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
+                    title: 'Procesando ...',
+                    text: 'Por favor, espere...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
                     }
-                }).then(() => {
-                    getDataPagos();
-                })
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    text: 'Ocurrio un error!',
-                    customClass: {
-                        confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
-                    }
-                })
+                });
+                const resp = await postDeletePago(id);
+
+                if (resp.message === "exito") {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Pago eliminado con exito!',
+                        customClass: {
+                            confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
+                        }
+                    }).then(() => {
+                        getDataPagos();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: resp.error || 'Ocurrió un error inesperado',
+                        customClass: {
+                            confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                        }
+                    });
+                }
             }
         } catch (error) {
             Swal.fire({
                 icon: 'error',
-                text: 'Ocurrio un error!',
+                text: 'Ocurrió un error!',
                 customClass: {
                     confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
                 }
-            })
+            });
         }
     }
 
@@ -57,7 +81,11 @@ export function Payments() {
     }
 
     function goToEdit(element) {
-        navigate("edit", { state: { resultsPredios, resultsClientes,data: element } });
+        navigate("edit", { state: { resultsPredios, resultsClientes, data: element } });
+    }
+
+    function goToCronograma(element) {
+        navigate("cronograma", { state: { data: element } });
     }
 
     async function getDataPagos() {
@@ -112,13 +140,14 @@ export function Payments() {
                         Pagos
                     </Typography>
                 </CardHeader>
-                <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                    <div className="flex justify-between px-4">
+                <div className="flex justify-between px-4">
                         <Button variant="gradient" color="green" size="sm" className="flex items-center gap-3" onClick={goToCreate}>
                             <PlusIcon className="h-4 w-4" />
                             Crear
                         </Button>
                     </div>
+                <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
+                    
                     {/* <div className="flex justify-between px-4 mt-4 gap-2">
                         <Input label="Buscar predios para..." size="md"
                             containerProps={{ className: "w-18 min-w-[100px]" }}
@@ -134,6 +163,11 @@ export function Payments() {
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
                                     <tr>
+                                    <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                            <Typography variant="small" className="text-[13px] font-bold uppercase">
+                                                Id Pago
+                                            </Typography>
+                                        </th>
                                         <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="small" className="text-[13px] font-bold uppercase">
                                                 Predio
@@ -171,6 +205,11 @@ export function Payments() {
                                         <tr key={el.id}>
                                             <td className={className}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
+                                                    {el.id}
+                                                </Typography>
+                                            </td>
+                                            <td className={className}>
+                                                <Typography className="text-md font-normal text-blue-gray-500">
                                                     {
                                                         el.predio.manzana + "-" + el.predio.lote
                                                     }
@@ -206,16 +245,20 @@ export function Payments() {
                                                     }
                                                 </Typography>
                                             </td>
-                                            <td className={className + " flex gap-2"}>
-                                                <div
-                                                    onClick={() => goToEdit(el)} 
-                                                    className="cursor-pointer">
-                                                    <PencilIcon className="h-4 w-4 hover:text-yellow-700 cursor-pointer" />
-                                                </div>
-                                                <div onClick={() => removeItem(el.id)} className="cursor-pointer">
-                                                    <TrashIcon className="h-4 w-4 hover:text-red-700 cursor-pointer" />
+                                            <td className={className}>
+                                                <div className="flex justify-center items-center gap-2">
+                                                    <div onClick={() => goToEdit(el)} className="cursor-pointer">
+                                                        <PencilIcon className="h-4 w-4 hover:text-yellow-700 cursor-pointer" />
+                                                    </div>
+                                                    <div onClick={() => removeItem(el.id)} className="cursor-pointer">
+                                                        <TrashIcon className="h-4 w-4 hover:text-red-700 cursor-pointer" />
+                                                    </div>
+                                                    <div onClick={() => goToCronograma(el)} className="cursor-pointer">
+                                                        <CalendarDaysIcon className="h-4 w-4 hover:text-blue-700 cursor-pointer" />
+                                                    </div>
                                                 </div>
                                             </td>
+
 
                                         </tr>
                                     ))}
