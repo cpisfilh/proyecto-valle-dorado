@@ -1,5 +1,7 @@
 import Recibo from "@/pdfs/Recibo";
 import axiosInstance from "@/requests/axiosConfig";
+import { getPago } from "@/requests/reqPagos";
+import CronogramaModal from "@/widgets/me/CronogramaModal";
 import ReciboModal from "@/widgets/me/ReciboModal";
 import { DocumentIcon } from "@heroicons/react/24/solid";
 import { Button, Card, CardBody, CardHeader, Spinner } from "@material-tailwind/react";
@@ -10,10 +12,11 @@ import Swal from "sweetalert2";
 
 const Schedule = () => {
     const location = useLocation();
-    const data = location.state?.data;
+    const [data, setData] = useState(location.state?.data || {});
     const [cuotasxPago, setCuotasxPago] = useState([]);
     const [loading, setLoading] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
+    const [modalCronogramaOpen, setModalCronogramaOpen] = useState(false);
     const [cuotaGenerarRecibo, setCuotaGenerarRecibo] = useState();
 
     async function getCuotasxPago() {
@@ -63,6 +66,7 @@ const Schedule = () => {
                         }
                     }).then(() => {
                         getCuotasxPago();
+                        getDataPago();
                     });
                 } else {
                     Swal.fire({
@@ -121,6 +125,7 @@ const Schedule = () => {
                         }
                     }).then(() => {
                         getCuotasxPago();
+                        getDataPago();
                     });
                 } else {
                     Swal.fire({
@@ -143,12 +148,27 @@ const Schedule = () => {
         }
     }
 
+    async function getDataPago() {
+            try {
+                setLoading(true);
+                const data2 = await getPago(data.id);
+                setData(data2.data);
+            } catch (error) {
+                throw Error(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+
     function handleModalOpen(data) {
         setCuotaGenerarRecibo(data);
     }
 
     useEffect(() => {
-        getCuotasxPago();
+        if (data) {
+            getCuotasxPago();
+            getDataPago();
+        }
     }, []);
 
     useEffect(() => {
@@ -156,6 +176,12 @@ const Schedule = () => {
             setModalOpen(true);
         }
     }, [cuotaGenerarRecibo]);
+
+    useEffect(() => {
+        if(cuotasxPago && modalCronogramaOpen){
+            setModalCronogramaOpen(true);
+        }
+    }, [cuotasxPago]);
 
     return (
         <div className="container mx-auto">
@@ -199,6 +225,9 @@ const Schedule = () => {
                         <p className="text-lg">
                             <span className="text-green-700 font-bold">Saldo Inicial:</span> S/ {data?.saldo}
                         </p>
+                        <p className="text-lg">
+                            <span className="text-green-700 font-bold">Saldo Actual:</span> S/ {data?.saldo_actual}
+                        </p>
                     </CardBody>
                 </Card>
             </div>
@@ -207,7 +236,7 @@ const Schedule = () => {
             <Card className="shadow-lg">
                 <CardHeader floated={false} shadow={false} className="bg-gray-700 p-4 flex justify-between">
                     <h2 className="text-white text-lg font-bold">Cronograma de Cuotas</h2>
-                    <button className="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded ml-2" onClick={() => eliminarCuota(cuota.id)}>
+                    <button className="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded ml-2" onClick={() => setModalCronogramaOpen(true)}>
                         Descargar Cronograma <i className="fas fa-download ml-2"></i>
                     </button>
                 </CardHeader>
@@ -259,6 +288,7 @@ const Schedule = () => {
                 </CardBody>
             </Card>
             {cuotaGenerarRecibo && (<ReciboModal isOpen={modalOpen} onClose={() => {setModalOpen(false);setCuotaGenerarRecibo(null);}} dataCuota={cuotaGenerarRecibo} dataGeneral={data} />)}
+            {cuotasxPago && (<CronogramaModal isOpen={modalCronogramaOpen} onClose={() => setModalCronogramaOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
         </div>
     );
 };

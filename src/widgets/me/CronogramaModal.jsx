@@ -9,11 +9,11 @@ import {
 } from "@material-tailwind/react";
 import { useState } from "react";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
-import { format, addMonths, setDate, getDate } from "date-fns";
+import { format, addMonths,parseISO } from "date-fns";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 
-const CronogramaModal = ({ isOpen, onClose }) => {
+const CronogramaModal = ({ isOpen, onClose,dataGeneral,dataCuotas }) => {
     const {
         control,
         handleSubmit,
@@ -22,11 +22,11 @@ const CronogramaModal = ({ isOpen, onClose }) => {
         watch,
     } = useForm({
         defaultValues: {
-            fechaInicial: "",
-            montoInicial: "",
-            montoTotal: "",
-            nombreArchivo: "",
-            persona: [{ nombre: "", dni: "", extra: "" }],
+            fechaInicial: dataGeneral?.fecha_cuota_inicial ? dataGeneral.fecha_cuota_inicial.split("T")[0] : "",
+            montoInicial: dataGeneral && dataGeneral.cuota_inicial,
+            montoTotal: dataGeneral && dataGeneral.precio_total,
+            nombreArchivo: dataGeneral && `Cronograma${dataGeneral.predio.manzana}-${dataGeneral.predio.lote}`,
+            persona: dataGeneral && dataGeneral.cliente_pago.map((persona) => ({ nombre: persona.cliente_nombre + " " + persona.cliente_apellido, dni: persona.cliente_dni,extra:"-" })),
         },
     });
 
@@ -53,6 +53,7 @@ const CronogramaModal = ({ isOpen, onClose }) => {
             return;
         }
     
+        // Convertimos la fecha inicial
         const [year, month, day] = formData.fechaInicial.split("-").map(Number);
         const fechaInicial = new Date(year, month - 1, day, 12);
         if (isNaN(fechaInicial.getTime())) {
@@ -60,46 +61,39 @@ const CronogramaModal = ({ isOpen, onClose }) => {
             return;
         }
     
-        const montoCuota = Math.ceil((parseFloat(formData.montoTotal - formData.montoInicial) / 12));
-        const fechas = Array.from({ length: 12 }, (_, i) =>
-            formatearFecha(addMonths(fechaInicial, i + 1))
-        );
+        // 📌 Extraer montos y fechas desde `dataCuotas`
+        const cuotasOrdenadas = [...dataCuotas.data].sort((a, b) => a.numero_cuota - b.numero_cuota);
+        const montos = cuotasOrdenadas.map(cuota => parseFloat(cuota.monto)); // Convertimos a número
+        const fechas = cuotasOrdenadas.map(cuota => formatearFecha(new Date(cuota.fecha_vencimiento)));
     
-        // 📌 Creamos un nuevo archivo de Excel
+        // 📌 Crear archivo Excel
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet(formData.nombreArchivo || "Cronograma");
-    
-        // 📌 Agregar los datos
-        worksheet.addRow(["", "", "", "", "DNI"]);
-    
-        formData.persona.forEach((p) => {
-            worksheet.addRow(["Cliente", p.nombre, "", "", p.dni]);
-        });
-    
+
         let startRow = 2; // Fila donde comienzan los clientes
     
+        // 📌 Agregar los datos de clientes
+        worksheet.addRow(["", "", "", "", "DNI"]);
         formData.persona.forEach((p, index) => {
             const row = startRow + index;
-            worksheet.getCell(`A${row}`).value = "Cliente";
-            worksheet.getCell(`B${row}`).value = p.nombre;
-            worksheet.getCell(`E${row}`).value = p.dni;
-    
-            // 📌 Combinar celdas de "Cliente" (columna B y D)
-            worksheet.mergeCells(`B${row}:D${row}`);
-    
-            // 📌 Aplicar alineación y negrita a los nombres de los clientes
-            worksheet.getCell(`B${row}`).alignment = { vertical: "middle", horizontal: "left" };
-            worksheet.getCell(`B${row}`).font = { bold: true };
+            worksheet.addRow(["Cliente", p.nombre, "", "", p.dni]);
+             // 📌 Combinar celdas de "Cliente" (columna B y D)
+             worksheet.mergeCells(row, 2, row, 4);
+            startRow++;
         });
+        
     
         worksheet.addRow([]); // Espacio vacío
         worksheet.addRow(["", "Inicial"]);
-        const fechaRow = worksheet.addRow(["", formatearFecha(fechaInicial), ...fechas]); // Fechas
-        const montoRow = worksheet.addRow(["", formData.montoInicial, ...Array(12).fill(montoCuota)]); // Monto
+        
+        // 📌 Usar fechas y montos extraídos
+        const fechaRow = worksheet.addRow(["", formatearFecha(fechaInicial), ...fechas]); // Fechas de vencimiento
+        const montoRow = worksheet.addRow(["", formData.montoInicial, ...montos]); // Montos de cuotas
+    
         worksheet.addRow([]); // Espacio vacío
         worksheet.addRow(["", "Monto total", formData.montoTotal]);
     
-        // 📌 Aplicar color de fondo amarillo a las fechas
+        // 📌 Aplicar estilos a las fechas
         fechaRow.eachCell((cell, colNumber) => {
             if (colNumber > 1) {
                 cell.fill = {
@@ -112,17 +106,10 @@ const CronogramaModal = ({ isOpen, onClose }) => {
             }
         });
     
-        // 📌 Aplicar color de fondo a la fecha inicial
-        fechaRow.getCell(2).fill = {
-            type: "pattern",
-            pattern: "solid",
-            fgColor: { argb: "FFCC00" }, // Amarillo oscuro
-        };
-    
-        // 📌 Aplicar bordes **solo a las celdas con datos**
+        // 📌 Aplicar bordes a las celdas con datos
         worksheet.eachRow((row) => {
             row.eachCell((cell) => {
-                if (cell.value) { // Solo si la celda tiene información
+                if (cell.value) { 
                     cell.border = {
                         top: { style: "thin" },
                         left: { style: "thin" },
@@ -133,15 +120,16 @@ const CronogramaModal = ({ isOpen, onClose }) => {
             });
         });
     
-        // 📌 Ajustar tamaño de columnas automáticamente
+        // 📌 Ajustar tamaño de columnas
         worksheet.columns.forEach((column) => {
             column.width = 15;
         });
     
-        // 📌 Guardar el archivo
+        // 📌 Guardar archivo
         const buffer = await workbook.xlsx.writeBuffer();
         saveAs(new Blob([buffer]), `${formData.nombreArchivo || "Cronograma"}.xlsx`);
     };
+    
     
     
     return (

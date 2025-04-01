@@ -12,8 +12,8 @@ const CreatePayment = () => {
             clientes: [""], // Iniciamos con un cliente vacío
             precioTotal: null,
             cuotaInicial: null,
+            fechaCuotaInicial: null,
             numeroCuotas: null,
-            saldo: null,
             predio: ""
         }
     });
@@ -29,8 +29,15 @@ const CreatePayment = () => {
     async function onSubmit(data) {
         const currentUrl = window.location.pathname;
         setLoading(true);
+        // Crear la fecha en local y ajustarla a medianoche en UTC
+        console.log(data);
+    const fecha_pagon = new Date(data.fechaCuotaInicial);
+    fecha_pagon.setUTCHours(0, 0, 0, 0); 
+
+    const fecha_pago_ajustada = fecha_pagon.toISOString();
+    console.log(fecha_pago_ajustada);
         try {
-            const resp = await postCreatePago(data);
+            const resp = await postCreatePago({ ...data, fechaCuotaInicial: fecha_pago_ajustada });
             if(resp.message === "exito") {
                 Swal.fire({
                     icon: 'success',
@@ -141,11 +148,11 @@ const CreatePayment = () => {
                         {errors.cuotaInicial && <Typography className="text-red-500 text-sm font-bold">{errors.cuotaInicial.message}</Typography>}
                     </div>
 
-                    {/* Saldo */}
+                    {/* Fecha Cuota Inicial */}
                     <div className="mb-4">
-                        <label className="block text-gray-700 font-bold">SALDO</label>
-                        <Input type="number" {...register("saldo", { required: "El campo Saldo es requerido" })} />
-                        {errors.saldo && <Typography className="text-red-500 text-sm font-bold">{errors.saldo.message}</Typography>}
+                        <label className="block text-gray-700 font-bold">FECHA CUOTA INICIAL</label>
+                        <Input type="date" {...register("fechaCuotaInicial", { required: "El campo Fecha Cuota Inicial es requerido" })} />
+                        {errors.fechaCuotaInicial && <Typography className="text-red-500 text-sm font-bold">{errors.fechaCuotaInicial.message}</Typography>}
                     </div>
 
                     {/* Predio */}

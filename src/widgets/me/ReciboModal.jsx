@@ -14,7 +14,7 @@ const ReciboModal = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
     const { control, handleSubmit, register, formState: { errors }, watch, reset } = useForm({
         defaultValues: {
             tipoPago: "Transferencia Bancaria",
-            fecha: dataCuota?.fecha_pago ? format(parseISO(dataCuota.fecha_pago), "dd-MM-yyyy") : "",
+            fecha: dataCuota?.fecha_pago ? dataCuota.fecha_pago.split("T")[0].split("-").reverse().join("-") : "",
             montoRecibo: dataCuota && dataCuota.monto && Number(dataCuota.monto).toLocaleString("en-US", { minimumFractionDigits: 2 }),
             montoReciboTexto: "",
             centavosRecibo: "00",

@@ -9,6 +9,15 @@ export async function getPagos() {
     }
 }
 
+export async function getPago(id) {
+    try {
+    const response = await axiosInstance.post(`/pago/getOne`, { id });
+    return response.data;
+    } catch (error) {
+     throw Error(error);
+    }
+}
+
 export async function postCreatePago(data) {
     try {
     const response = await axiosInstance.post("/pago/create", data);

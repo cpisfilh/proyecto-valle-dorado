@@ -4,6 +4,8 @@ import {
   HomeIcon,
   MapIcon,
   MapPinIcon,
+  RectangleStackIcon,
+  ServerStackIcon,
   UserIcon
 } from "@heroicons/react/24/solid";
 import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
@@ -22,6 +24,7 @@ import Quotas from "./pages/dashboard/quotas";
 import CreateQuota from "./custom/components/cuotas/CreateQuota";
 import EditQuota from "./custom/components/cuotas/EditQuota";
 import Schedule from "./pages/dashboard/schedule";
+import { SignIn, SignUp } from "./pages/auth";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -208,24 +211,6 @@ export const routes = [
       // },
     ],
   },
-  // {
-  //   title: "auth pages",
-  //   layout: "auth",
-  //   pages: [
-  //     {
-  //       icon: <ServerStackIcon {...icon} />,
-  //       name: "sign in",
-  //       path: "/sign-in",
-  //       element: <SignIn />,
-  //     },
-  //     {
-  //       icon: <RectangleStackIcon {...icon} />,
-  //       name: "sign up",
-  //       path: "/sign-up",
-  //       element: <SignUp />,
-  //     },
-  //   ],
-  // },
 ];
 
 export default routes;
