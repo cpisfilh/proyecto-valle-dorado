@@ -35,3 +35,12 @@ export async function postDeleteCuota(data) {
      throw Error(error);
     }
 }
+
+export async function getFirstToExpire() {
+    try {
+    const response = await axiosInstance.get("/cuota/getFirstToExpire");
+    return response.data;
+    } catch (error) {
+     throw Error(error);
+    }
+}

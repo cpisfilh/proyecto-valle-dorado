@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Button,
+  Card,
+  CardBody,
+  CardFooter,
+  Spinner,
 } from "@material-tailwind/react";
 import { StatisticsCard } from "@/widgets/cards";
-import { BanknotesIcon,
+import {
+  BanknotesIcon,
   UserPlusIcon,
   UsersIcon,
   ChartBarIcon,
@@ -14,6 +19,7 @@ import { BanknotesIcon,
 import ReciboModal from "../../widgets/me/ReciboModal";
 import * as XLSX from "xlsx";
 import CronogramaModal from "@/widgets/me/CronogramaModal";
+import { getFirstToExpire } from "@/requests/reqCuotas";
 
 export const statisticsCardsData = [
   {
@@ -43,46 +49,65 @@ export const statisticsCardsData = [
 export function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalCronogramaOpen, setModalCronogramaOpen] = useState(false);
+  const [cuotasPorVencer, setCuotasPorVencer] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const traerCuotasPorVencer = async () => {
+    setLoading(true);
+    try {
+      const response = await getFirstToExpire();
+      setCuotasPorVencer(response.data);
+    } catch (error) {
+      throw Error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    traerCuotasPorVencer();
+  }, []);
 
   return (
-    <div className="mt-12">
-      <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
-        {statisticsCardsData.map(({ icon, title, footer, ...rest }) => (
-          <StatisticsCard
-            key={title}
-            {...rest}
-            title={title}
-            icon={React.createElement(icon, {
-              className: "w-6 h-6 text-white",
-            })}
-            footer={
-              <>
-                <Typography className="font-normal text-blue-gray-600">
-                  <strong className={footer.color}>{footer.value}</strong>
-                  &nbsp;{footer.label}
-                </Typography>
-              </>
-            }
-          />
-        ))}
+    <div>
+      <div className="mb-6 grid grid-cols-1 gap-y-12 gap-x-6 md:grid-cols-1 xl:grid-cols-2">
+        <Card className="mt-6">
+          <CardBody>
+            <Typography variant="h5" color="blue-gray" className="mb-2 text-center">
+              PRIMERAS 5 CUOTAS POR VENCER
+            </Typography>
+            {/* <Typography> */}
+            {!loading ? (
+              cuotasPorVencer.length > 0 ? (
+                <ul>
+                  {cuotasPorVencer.map((cuota) => (
+                    <li
+                      className="mb-2 p-1 rounded-lg border border-black"
+                      key={cuota.idCuota}
+                    >
+                      {cuota.manzana + "-" + cuota.lote} | {cuota.clientes[0]} |{" "}
+                      {cuota.fecha_vencimiento.split("T")[0]} |{" "}
+                      {Number(cuota.monto).toFixed(2)}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="text-center text-gray-500">No hay cuotas por vencer.</div>
+              )
+            ) : (
+              <div className="flex justify-center items-center gap-2">
+                Consultando... <Spinner color="blue" />
+              </div>
+            )}
+
+
+            {/* </Typography> */}
+          </CardBody>
+          {/* <CardFooter className="pt-0">
+            <Button>Read More</Button>
+          </CardFooter> */}
+        </Card>
       </div>
-      {/* <div className="mb-6 grid grid-cols-1 gap-y-12 gap-x-6 md:grid-cols-2 xl:grid-cols-3">
-        {statisticsChartsData.map((props) => (
-          <StatisticsChart
-            key={props.title}
-            {...props}
-            footer={
-              <Typography
-                variant="small"
-                className="flex items-center font-normal text-blue-gray-600"
-              >
-                <ClockIcon strokeWidth={2} className="h-4 w-4 text-blue-gray-400" />
-                &nbsp;{props.footer}
-              </Typography>
-            }
-          />
-        ))}
-      </div> */}
       <Button className="flex items-center gap-3" onClick={() => setModalOpen(true)}>Generar Recibo <DocumentChartBarIcon strokeWidth={2} className="h-4 w-4 " /></Button>
       <Button className="flex items-center gap-3 mt-2" onClick={() => setModalCronogramaOpen(true)}>Generar Cronograma de pagos <CalendarIcon strokeWidth={2} className="h-4 w-4 " /></Button>
       <ReciboModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
