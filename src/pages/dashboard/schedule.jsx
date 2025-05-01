@@ -374,7 +374,7 @@ const Schedule = () => {
                 </CardBody>
             </Card>
             {cuotaGenerarRecibo && (<ReciboModal isOpen={modalOpen} onClose={() => { setModalOpen(false); setCuotaGenerarRecibo(null); }} dataCuota={cuotaGenerarRecibo} dataGeneral={data} />)}
-            {cuotasxPago && (<CronogramaModal isOpen={modalCronogramaOpen} onClose={() => setModalCronogramaOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
+            {modalCronogramaOpen && (<CronogramaModal isOpen={modalCronogramaOpen} onClose={() => setModalCronogramaOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
             {modalAddCuotaInicialOpen && (<CuotaInicialModal isOpen={modalAddCuotaInicialOpen} onClose={() => setModalAddCuotaInicialOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
             {modalGenerarCuotasOpen && (<GenerarCuotasModal isOpen={modalGenerarCuotasOpen} onClose={() => setModalGenerarCuotasOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
         </div>

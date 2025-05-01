@@ -242,7 +242,7 @@ const CronogramaModal = ({ isOpen, onClose, dataGeneral, dataCuotas }) => {
                             document={
                                 <Cronograma
                                     formData={dataGeneral}
-                                    cuotas={dataCuotas.data && dataCuotas.data.filter(e => e.tipo=="MENSUAL")}
+                                    cuotas={dataCuotas &&dataCuotas.data && dataCuotas.data.filter(e => e.tipo=="MENSUAL")}
                                     formatearFecha={formatearFecha}
                                 />
                             }
