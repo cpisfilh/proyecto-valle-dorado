@@ -49,3 +49,80 @@ export const numeroATexto = (montoTexto) => {
 
     return texto.trim();
 };
+
+
+export function parseFechaReferenciaUTC(dateStr) {
+    const date = new Date(dateStr);
+    return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+  }
+
+export function numeroALetras(num) {
+    console.log(num);
+    const unidades = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+    const especiales = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'];
+    const decenas = ['', 'diez', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+    const centenas = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+  
+    function seccion(n) {
+      let texto = '';
+      if (n === 100) return 'cien';
+      if (n > 99) {
+        texto += centenas[Math.floor(n / 100)] + ' ';
+        n %= 100;
+      }
+      if (n >= 10 && n <= 19) {
+        texto += especiales[n - 10];
+      } else if (n >= 20 && n < 30) {
+        if (n === 20) {
+          texto += 'veinte';
+        } else {
+          texto += 'veinti' + unidades[n % 10];
+        }
+      } else {
+        if (n >= 30) {
+          texto += decenas[Math.floor(n / 10)];
+          if (n % 10 > 0) texto += ' y ' + unidades[n % 10];
+        } else if (n > 0) {
+          texto += unidades[n];
+        }
+      }
+      return texto.trim();
+    }
+  
+    function miles(n) {
+      if (n < 1000) return seccion(n);
+      if (n < 2000) return 'mil ' + seccion(n % 1000);
+      return seccion(Math.floor(n / 1000)) + ' mil ' + seccion(n % 1000);
+    }
+  
+    function millones(n) {
+      if (n < 1000000) return miles(n);
+      if (n < 2000000) return 'un millón ' + miles(n % 1000000);
+      return seccion(Math.floor(n / 1000000)) + ' millones ' + miles(n % 1000000);
+    }
+  
+    function capitalizar(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function ajustarUnMil(texto) {
+        return texto
+          .replace(/\bveintiuno mil\b/i, 'veintiún mil')
+          .replace(/\btreinta y uno mil\b/i, 'treinta y un mil')
+          .replace(/\bcuarenta y uno mil\b/i, 'cuarenta y un mil')
+          .replace(/\bcincuenta y uno mil\b/i, 'cincuenta y un mil')
+          .replace(/\bsesenta y uno mil\b/i, 'sesenta y un mil')
+          .replace(/\bsetenta y uno mil\b/i, 'setenta y un mil')
+          .replace(/\bochenta y uno mil\b/i, 'ochenta y un mil')
+          .replace(/\bnoventa y uno mil\b/i, 'noventa y un mil')
+          .replace(/\buno mil\b/i, 'mil'); // por si acaso
+      }
+      
+  
+    const [enteroStr] = num.toString().split('.');
+    const entero = parseInt(enteroStr, 10);
+  
+    let resultado = millones(entero).trim();
+  
+    return capitalizar(ajustarUnMil(resultado));
+  }

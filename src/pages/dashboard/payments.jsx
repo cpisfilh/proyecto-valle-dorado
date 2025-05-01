@@ -158,7 +158,7 @@ export function Payments() {
                         </Button>
                     </div> */}
 
-                    {results && results.length ? (
+                    {currentData && currentData.length ? (
                         <>
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
@@ -188,11 +188,11 @@ export function Payments() {
                                                 Cuota Inicial
                                             </Typography>
                                         </th>
-                                        <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                        {/* <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="small" className="text-[13px] font-bold uppercase">
                                                 Saldo
                                             </Typography>
-                                        </th>
+                                        </th> */}
                                         <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="small" className="text-[13px] font-bold uppercase">
                                                 Acciones
@@ -238,18 +238,18 @@ export function Payments() {
                                                     }
                                                 </Typography>
                                             </td>
-                                            <td className={className}>
+                                            {/* <td className={className}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
                                                     {
                                                         Intl.NumberFormat('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(el.saldo)
                                                     }
                                                 </Typography>
-                                            </td>
+                                            </td> */}
                                             <td className={className}>
                                                 <div className="flex justify-center items-center gap-2">
-                                                    <div onClick={() => goToEdit(el)} className="cursor-pointer">
+                                                    {/* <div onClick={() => goToEdit(el)} className="cursor-pointer">
                                                         <PencilIcon className="h-4 w-4 hover:text-yellow-700 cursor-pointer" />
-                                                    </div>
+                                                    </div> */}
                                                     <div onClick={() => removeItem(el.id)} className="cursor-pointer">
                                                         <TrashIcon className="h-4 w-4 hover:text-red-700 cursor-pointer" />
                                                     </div>

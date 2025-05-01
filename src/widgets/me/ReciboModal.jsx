@@ -16,17 +16,17 @@ const ReciboModal = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
             tipoPago: "Transferencia Bancaria",
             fecha: dataCuota?.fecha_pago ? dataCuota.fecha_pago.split("T")[0].split("-").reverse().join("-") : "",
             montoRecibo: dataCuota && dataCuota.monto && Number(dataCuota.monto).toLocaleString("en-US", { minimumFractionDigits: 2 }),
-            montoReciboTexto: "",
+            // montoReciboTexto: "",
             centavosRecibo: "00",
             montoTotal: dataGeneral && dataGeneral.precio_total && Number(dataGeneral.precio_total).toLocaleString("en-US", { minimumFractionDigits: 2 }),
-            montoTotalTexto: "",
+            // montoTotalTexto: "",
             centavosTotal: "00",
             predio: {
                 manzana: dataGeneral && dataGeneral.predio.manzana,
                 lote: dataGeneral && dataGeneral.predio.lote,
             },
             persona: dataGeneral && dataGeneral.cliente_pago.map((persona) => ({ nombre: persona.cliente_nombre + " " + persona.cliente_apellido, dni: persona.cliente_dni })),
-            concepto: "Pago de Cuota",
+            concepto: dataCuota && dataCuota.tipo=="MENSUAL" ? "PAGO DE CUOTA "+dataCuota.numero_cuota : "PARTE DE CUOTA INICIAL",
         }
     });
 
@@ -45,10 +45,10 @@ const ReciboModal = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
             formValues.tipoPago &&
             formValues.fecha &&
             formValues.montoRecibo &&
-            formValues.montoReciboTexto &&
+            // formValues.montoReciboTexto &&
             formValues.centavosRecibo &&
             formValues.montoTotal &&
-            formValues.montoTotalTexto &&
+            // formValues.montoTotalTexto &&
             formValues.centavosTotal &&
             formValues.predio.manzana &&
             formValues.predio.lote &&
@@ -138,15 +138,15 @@ const ReciboModal = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
                     </div>
 
                     {/* Monto Recibo Texto */}
-                    <div className="flex flex-col lg:flex-row lg:items-center gap-2">
+                    {/* <div className="flex flex-col lg:flex-row lg:items-center gap-2">
                         <Input className="w-full " label="Monto en Letras" {...register("montoReciboTexto", { required: "Este campo es obligatorio" })} />
                         <div className="flex gap-2 w-full">
                             <span className="flex items-center">nuevos soles con</span>
                             <Input label="Céntimos (/100)" {...register("centavosRecibo", { required: "Este campo es obligatorio" })} />
                         </div>
-                    </div>
+                    </div> */}
 
-                    {errors.montoReciboTexto && <p className="text-red-500 text-sm">{errors.montoReciboTexto.message}</p>}
+                    {/* {errors.montoReciboTexto && <p className="text-red-500 text-sm">{errors.montoReciboTexto.message}</p>} */}
 
 
                     {/* Monto Total */}
@@ -167,14 +167,14 @@ const ReciboModal = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
                     </div>
 
                     {/* Monto Total Texto */}
-                    <div className="flex flex-col lg:flex-row lg:items-center gap-2">
+                    {/* <div className="flex flex-col lg:flex-row lg:items-center gap-2">
                         <Input className="w-full" label="Monto en Letras" {...register("montoTotalTexto", { required: "Este campo es obligatorio" })} />
                         <div className="flex gap-2 w-full">
                             <span className="flex items-center">nuevos soles con</span>
                             <Input label="Céntimos (/100)" {...register("centavosTotal", { required: "Este campo es obligatorio" })} />
                         </div>
                     </div>
-                    {errors.montoTotalTexto && <p className="text-red-500 text-sm">{errors.montoTotalTexto.message}</p>}
+                    {errors.montoTotalTexto && <p className="text-red-500 text-sm">{errors.montoTotalTexto.message}</p>} */}
 
                     {/* Sección de Personas */}
                     <div>
@@ -209,7 +209,7 @@ const ReciboModal = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
                             isFormComplete() && (
                                 <PDFDownloadLink
                                     document={<Recibo data={watch()} />}
-                                    fileName="recibo.pdf"
+                                    fileName={`recibo${dataCuota && dataCuota.tipo=="MENSUAL" ? "PAGOCUOTA_"+dataCuota.numero_cuota : "PARTECUOTAINICIAL"}_${dataGeneral ? dataGeneral.predio.manzana + dataGeneral.predio.lote : ""}.pdf`}
                                 >
                                     <Button variant="gradient" color="green">Generar Recibo</Button>
                                 </PDFDownloadLink>

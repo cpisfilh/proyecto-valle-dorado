@@ -2,6 +2,8 @@ import Recibo from "@/pdfs/Recibo";
 import axiosInstance from "@/requests/axiosConfig";
 import { getPago } from "@/requests/reqPagos";
 import CronogramaModal from "@/widgets/me/CronogramaModal";
+import CuotaInicialModal from "@/widgets/me/CuotaInicialModal";
+import GenerarCuotasModal from "@/widgets/me/GenerarCuotasModal";
 import ReciboModal from "@/widgets/me/ReciboModal";
 import { DocumentIcon } from "@heroicons/react/24/solid";
 import { Button, Card, CardBody, CardHeader, Spinner } from "@material-tailwind/react";
@@ -17,6 +19,8 @@ const Schedule = () => {
     const [loading, setLoading] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalCronogramaOpen, setModalCronogramaOpen] = useState(false);
+    const [modalAddCuotaInicialOpen, setModalAddCuotaInicialOpen] = useState(false);
+    const [modalGenerarCuotasOpen, setModalGenerarCuotasOpen] = useState(false);
     const [cuotaGenerarRecibo, setCuotaGenerarRecibo] = useState();
 
     async function getCuotasxPago() {
@@ -149,16 +153,16 @@ const Schedule = () => {
     }
 
     async function getDataPago() {
-            try {
-                setLoading(true);
-                const data2 = await getPago(data.id);
-                setData(data2.data);
-            } catch (error) {
-                throw Error(error);
-            } finally {
-                setLoading(false);
-            }
+        try {
+            setLoading(true);
+            const data2 = await getPago(data.id);
+            setData(data2.data);
+        } catch (error) {
+            throw Error(error);
+        } finally {
+            setLoading(false);
         }
+    }
 
     function handleModalOpen(data) {
         setCuotaGenerarRecibo(data);
@@ -178,10 +182,17 @@ const Schedule = () => {
     }, [cuotaGenerarRecibo]);
 
     useEffect(() => {
-        if(cuotasxPago && modalCronogramaOpen){
+        if (cuotasxPago && modalCronogramaOpen) {
             setModalCronogramaOpen(true);
         }
     }, [cuotasxPago]);
+
+    useEffect(() => {
+        if(modalAddCuotaInicialOpen==false && modalGenerarCuotasOpen==false){
+            getCuotasxPago();
+            getDataPago();
+        }
+    }, [modalAddCuotaInicialOpen,modalGenerarCuotasOpen]);
 
     return (
         <div className="container mx-auto">
@@ -222,9 +233,9 @@ const Schedule = () => {
                         <p className="text-lg">
                             <span className="text-green-700 font-bold">Cuota Inicial:</span> S/ {data?.cuota_inicial}
                         </p>
-                        <p className="text-lg">
+                        {/* <p className="text-lg">
                             <span className="text-green-700 font-bold">Saldo Inicial:</span> S/ {data?.saldo}
-                        </p>
+                        </p> */}
                         <p className="text-lg">
                             <span className="text-green-700 font-bold">Saldo Actual:</span> S/ {data?.saldo_actual}
                         </p>
@@ -235,12 +246,84 @@ const Schedule = () => {
             {/* Tabla de Cuotas */}
             <Card className="shadow-lg">
                 <CardHeader floated={false} shadow={false} className="bg-gray-700 p-4 flex justify-between">
-                    <h2 className="text-white text-lg font-bold">Cronograma de Cuotas</h2>
-                    <button className="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded ml-2" onClick={() => setModalCronogramaOpen(true)}>
-                        Descargar Cronograma <i className="fas fa-download ml-2"></i>
-                    </button>
+                    <h2 className="text-white text-lg font-bold">Pagos de cuota inicial </h2>
+                    {
+                        data && (data.precio_total - data.saldo_actual < data.cuota_inicial) &&
+                        <button className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded ml-2" onClick={() => setModalAddCuotaInicialOpen(true)}>
+                            Registrar +
+                        </button>
+                    }
                 </CardHeader>
-                <CardBody>
+                <CardBody className="pt-2">
+                    <div className="overflow-x-auto">
+                        <table className="w-full border-collapse border border-gray-300">
+                            <thead>
+                                <tr className="bg-gray-700 text-white">
+                                    {/* <th className="p-3 border border-gray-300">Cuota</th> */}
+                                    <th className="p-3 border border-gray-300">Monto (S/)</th>
+                                    <th className="p-3 border border-gray-300">Fecha de Vencimiento</th>
+                                    <th className="p-3 border border-gray-300">Fecha de Pago</th>
+                                    <th className="p-3 border border-gray-300">Estado</th>
+                                    <th className="p-3 border border-gray-300">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {cuotasxPago.data && cuotasxPago.data.map((cuota, index) => {
+                                    if (cuota.tipo === "INICIAL") {
+                                        return <tr key={index} className="text-center border border-gray-300 odd:bg-gray-100">
+                                            {/* <td className="p-3">{cuota.numero_cuota}</td> */}
+                                            <td className="p-3">S/ {cuota.monto}</td>
+                                            <td className="p-3">{cuota.fecha_vencimiento && cuota.fecha_vencimiento.split("T")[0]}</td>
+                                            <td className="p-3">{cuota.fecha_pago && cuota.fecha_pago.split("T")[0]}</td>
+                                            <td className="p-3">{cuota.estado ? "Pagada" : "Pendiente"}</td>
+                                            <td className="p-3 flex justify-center">
+                                                {cuota.estado ? (
+                                                    <>
+                                                        <button className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded" onClick={() => revertirpagarCuota(cuota.id)}>
+                                                            Pagada
+                                                        </button>
+                                                        <button className="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded ml-2" onClick={() => handleModalOpen(cuota)}>
+                                                            <DocumentIcon className="w-6 h-6" />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded" onClick={() => pagarCuota(cuota.id)}>
+                                                            Pagar
+                                                        </button>
+
+                                                    </>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    }
+
+                                }
+
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </CardBody>
+            </Card>
+
+            {/* Tabla de Cuotas */}
+            <Card className="shadow-lg">
+                <CardHeader floated={false} shadow={false} className="bg-gray-700 p-4 flex justify-between">
+                    <h2 className="text-white text-lg font-bold">Cronograma de Cuotas</h2>
+                    {/* {
+                        data && (data.precio_total - data.saldo_actual == data.cuota_inicial) && <button className="bg-cyan-700 hover:bg-cyan-800 text-white py-2 px-4 rounded ml-2" onClick={() => setModalGenerarCuotasOpen(true)}>
+                            Generar Cuotas <i className="fas fa-download ml-2"></i>
+                        </button>
+                    } */}
+                    {
+                        cuotasxPago.data && cuotasxPago.data.length > 0 &&
+                        <button className="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded ml-2" onClick={() => setModalCronogramaOpen(true)}>
+                            Descargar Cronograma <i className="fas fa-download ml-2"></i>
+                        </button>
+                    }
+                </CardHeader>
+                <CardBody className="pt-2">
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse border border-gray-300">
                             <thead>
@@ -254,41 +337,46 @@ const Schedule = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {cuotasxPago.data && cuotasxPago.data.map((cuota, index) => (
-                                    <tr key={index} className="text-center border border-gray-300 odd:bg-gray-100">
-                                        <td className="p-3">{cuota.numero_cuota}</td>
-                                        <td className="p-3">S/ {cuota.monto}</td>
-                                        <td className="p-3">{cuota.fecha_vencimiento && cuota.fecha_vencimiento.split("T")[0]}</td>
-                                        <td className="p-3">{cuota.fecha_pago && cuota.fecha_pago.split("T")[0]}</td>
-                                        <td className="p-3">{cuota.estado ? "Pagada" : "Pendiente"}</td>
-                                        <td className="p-3 flex justify-center">
-                                            {cuota.estado ? (
-                                                <>
-                                                    <button className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded" onClick={() => revertirpagarCuota(cuota.id)}>
-                                                        Pagada
-                                                    </button>
-                                                    <button className="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded ml-2" onClick={() => handleModalOpen(cuota)}>
-                                                        <DocumentIcon className="w-6 h-6" />
-                                                    </button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded" onClick={() => pagarCuota(cuota.id)}>
-                                                        Pagar
-                                                    </button>
+                                {cuotasxPago.data && cuotasxPago.data.map((cuota, index) => {
+                                    if (cuota.tipo === "MENSUAL") {
+                                        return <tr key={index} className="text-center border border-gray-300 odd:bg-gray-100">
+                                            <td className="p-3">{cuota.numero_cuota}</td>
+                                            <td className="p-3">S/ {cuota.monto}</td>
+                                            <td className="p-3">{cuota.fecha_vencimiento && cuota.fecha_vencimiento.split("T")[0]}</td>
+                                            <td className="p-3">{cuota.fecha_pago && cuota.fecha_pago.split("T")[0]}</td>
+                                            <td className="p-3">{cuota.estado ? "Pagada" : "Pendiente"}</td>
+                                            <td className="p-3 flex justify-center">
+                                                {cuota.estado ? (
+                                                    <>
+                                                        <button className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded" onClick={() => revertirpagarCuota(cuota.id)}>
+                                                            Pagada
+                                                        </button>
+                                                        <button className="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded ml-2" onClick={() => handleModalOpen(cuota)}>
+                                                            <DocumentIcon className="w-6 h-6" />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded" onClick={() => pagarCuota(cuota.id)}>
+                                                            Pagar
+                                                        </button>
 
-                                                </>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
+                                                    </>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    }
+
+                                })}
                             </tbody>
                         </table>
                     </div>
                 </CardBody>
             </Card>
-            {cuotaGenerarRecibo && (<ReciboModal isOpen={modalOpen} onClose={() => {setModalOpen(false);setCuotaGenerarRecibo(null);}} dataCuota={cuotaGenerarRecibo} dataGeneral={data} />)}
+            {cuotaGenerarRecibo && (<ReciboModal isOpen={modalOpen} onClose={() => { setModalOpen(false); setCuotaGenerarRecibo(null); }} dataCuota={cuotaGenerarRecibo} dataGeneral={data} />)}
             {cuotasxPago && (<CronogramaModal isOpen={modalCronogramaOpen} onClose={() => setModalCronogramaOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
+            {modalAddCuotaInicialOpen && (<CuotaInicialModal isOpen={modalAddCuotaInicialOpen} onClose={() => setModalAddCuotaInicialOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
+            {modalGenerarCuotasOpen && (<GenerarCuotasModal isOpen={modalGenerarCuotasOpen} onClose={() => setModalGenerarCuotasOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
         </div>
     );
 };

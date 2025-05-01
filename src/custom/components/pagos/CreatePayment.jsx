@@ -12,7 +12,7 @@ const CreatePayment = () => {
             clientes: [""], // Iniciamos con un cliente vacío
             precioTotal: null,
             cuotaInicial: null,
-            fechaCuotaInicial: null,
+            fechaReferencia: null,
             numeroCuotas: null,
             predio: ""
         }
@@ -31,7 +31,7 @@ const CreatePayment = () => {
         setLoading(true);
         // Crear la fecha en local y ajustarla a medianoche en UTC
         console.log(data);
-    const fecha_pagon = new Date(data.fechaCuotaInicial);
+    const fecha_pagon = new Date(data.fechaReferencia);
     fecha_pagon.setUTCHours(0, 0, 0, 0); 
 
     const fecha_pago_ajustada = fecha_pagon.toISOString();
@@ -150,9 +150,9 @@ const CreatePayment = () => {
 
                     {/* Fecha Cuota Inicial */}
                     <div className="mb-4">
-                        <label className="block text-gray-700 font-bold">FECHA CUOTA INICIAL</label>
-                        <Input type="date" {...register("fechaCuotaInicial", { required: "El campo Fecha Cuota Inicial es requerido" })} />
-                        {errors.fechaCuotaInicial && <Typography className="text-red-500 text-sm font-bold">{errors.fechaCuotaInicial.message}</Typography>}
+                        <label className="block text-gray-700 font-bold">FECHA DE REFERENCIA</label>
+                        <Input type="date" {...register("fechaReferencia", { required: "El campo Fecha Cuota Inicial es requerido" })} />
+                        {errors.fechaReferencia && <Typography className="text-red-500 text-sm font-bold">{errors.fechaReferencia.message}</Typography>}
                     </div>
 
                     {/* Predio */}
