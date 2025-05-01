@@ -13,7 +13,7 @@ export function PropertiesXCustomer() {
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
-    const { currentData, currentPage, totalPages, nextPage, prevPage } = usePagination(results, 5);
+    const { currentData, currentPage, totalPages, nextPage, prevPage } = usePagination(results, 6);
     const [resultsClientes, setResultsClientes] = useState([]);
     const [resultsPredios, setResultsPredios] = useState([]);
 
@@ -124,7 +124,7 @@ export function PropertiesXCustomer() {
                         </Button>
                     </div> */}
 
-                    {results && results.length ? (
+                    {currentData && currentData.length ? (
                         <>
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
@@ -162,7 +162,7 @@ export function PropertiesXCustomer() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {results.map((el) => (
+                                    {currentData.map((el) => (
                                         <tr key={el.id}>
                                             <td className={className}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">

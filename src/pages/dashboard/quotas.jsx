@@ -131,7 +131,7 @@ export function Quotas() {
                         </Button>
                     </div> */}
 
-                    {results && results.length ? (
+                    {currentData && currentData.length ? (
                         <>
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
@@ -174,7 +174,7 @@ export function Quotas() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {results.map((el) => (
+                                    {currentData.map((el) => (
                                         <tr key={el.id}>
                                             <td className={className}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">

@@ -17,7 +17,7 @@ export function Payments() {
     const [resultsPredios, setResultsPredios] = useState([]);
     const location = useLocation();
     const navigate = useNavigate();
-    const { currentData, currentPage, totalPages, nextPage, prevPage } = usePagination(results, 5);
+    const { currentData, currentPage, totalPages, nextPage, prevPage } = usePagination(results, 10);
 
     async function removeItem(id) {
         try {
@@ -201,7 +201,7 @@ export function Payments() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {results.map((el) => (
+                                    {currentData.map((el) => (
                                         <tr key={el.id}>
                                             <td className={className}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
