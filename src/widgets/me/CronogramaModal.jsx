@@ -242,11 +242,10 @@ const CronogramaModal = ({ isOpen, onClose, dataGeneral, dataCuotas }) => {
                             document={
                                 <Cronograma
                                     formData={dataGeneral}
-                                    cuotas={dataCuotas &&dataCuotas.data && dataCuotas.data.filter(e => e.tipo=="MENSUAL")}
+                                    cuotas={dataCuotas && dataCuotas.data && dataCuotas.data.filter(e => e.tipo=="MENSUAL")}
                                     formatearFecha={formatearFecha}
                                 />
                             }
-                            onClick={onClose}
                             fileName={`Cronograma_${dataGeneral ? dataGeneral.predio.manzana + dataGeneral.predio.lote : ""}.pdf`}
                         >
                             {({ loading }) => (
