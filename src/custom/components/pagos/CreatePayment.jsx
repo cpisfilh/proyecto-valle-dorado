@@ -1,4 +1,5 @@
 import { postCreatePago } from "@/requests/reqPagos";
+import usePaymentsStore from "@/store/usePaymentsStore";
 import { Button, Card, CardBody, CardFooter, CardHeader, Input, Spinner, Typography } from "@material-tailwind/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -46,6 +47,7 @@ const CreatePayment = () => {
                         confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
                     }
                 })
+                usePaymentsStore.getState().setShouldReloadPagos(true);
                 navigate(`${currentUrl.replace("/create", "")}`);
             }else{
                 Swal.fire({

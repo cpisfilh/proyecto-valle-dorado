@@ -8,130 +8,108 @@ import { getPagos, postDeletePago } from "@/requests/reqPagos";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { getClientes } from "@/requests/reqClientes";
 import Swal from "sweetalert2";
+import usePaymentsStore from "@/store/usePaymentsStore";
 
 export function Payments() {
     const className = "py-3 px-5";
     const [loading, setLoading] = useState(false);
-    const [results, setResults] = useState([]);
-    const [resultsClientes, setResultsClientes] = useState([]);
-    const [resultsPredios, setResultsPredios] = useState([]);
     const location = useLocation();
     const navigate = useNavigate();
-    const { currentData, currentPage, totalPages, nextPage, prevPage } = usePagination(results, 10);
 
-    async function removeItem(id) {
-        try {
-            const result = await Swal.fire({
-                icon: 'question',
-                text: '¿Desea eliminar el pago?',
-                showDenyButton: true,
-                confirmButtonText: 'Si',
-                denyButtonText: 'No',
-                customClass: {
-                    confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600',
-                    denyButton: 'bg-red-500 text-white rounded hover:bg-red-600'
-                }
-            });
+    const {
+        pagos,
+        clientes,
+        predios,
+        fetchPagos,
+        fetchClientes,
+        fetchPredios,
+        shouldReloadPagos,
+        setShouldReloadPagos
+    } = usePaymentsStore();
 
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Procesando ...',
-                    text: 'Por favor, espere...',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                const resp = await postDeletePago(id);
+    const { currentData, currentPage, totalPages, nextPage, prevPage } = usePagination(pagos, 10);
+    const isLotesRoute = location.pathname.endsWith("/pagos");
 
-                if (resp.message === "exito") {
-                    Swal.fire({
-                        icon: 'success',
-                        text: 'Pago eliminado con exito!',
-                        customClass: {
-                            confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
-                        }
-                    }).then(() => {
-                        getDataPagos();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        text: resp.error || 'Ocurrió un error inesperado',
-                        customClass: {
-                            confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
-                        }
-                    });
-                }
-            }
-        } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                text: 'Ocurrió un error!',
-                customClass: {
-                    confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
-                }
-            });
+    useEffect(() => {
+        fetchClientes();
+        fetchPredios();
+    }, []);
+
+    useEffect(() => {
+        if (isLotesRoute) {
+            setLoading(true);
+            fetchPagos().finally(() => setLoading(false));
         }
-    }
+    }, [isLotesRoute]);
 
     function goToCreate() {
-        navigate("create", { state: { resultsPredios, resultsClientes } });
+        navigate("create", { state: { resultsPredios: predios, resultsClientes: clientes } });
     }
 
     function goToEdit(element) {
-        navigate("edit", { state: { resultsPredios, resultsClientes, data: element } });
+        navigate("edit", { state: { resultsPredios: predios, resultsClientes: clientes, data: element } });
     }
 
     function goToCronograma(element) {
         navigate("cronograma", { state: { data: element } });
     }
 
-    async function getDataPagos() {
-        try {
-            setLoading(true);
-            const data = await getPagos();
-            setResults(data.data);
-        } catch (error) {
-            throw Error(error);
-        } finally {
-            setLoading(false);
+    async function removeItem(id) {
+        const result = await Swal.fire({
+            icon: 'question',
+            text: '¿Desea eliminar el pago?',
+            showDenyButton: true,
+            confirmButtonText: 'Si',
+            denyButtonText: 'No',
+            customClass: {
+                confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600',
+                denyButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+            }
+        });
+
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Procesando ...',
+                text: 'Por favor, espere...',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            const resp = await postDeletePago(id);
+            if (resp.message === "exito") {
+                Swal.fire({
+                    icon: 'success',
+                    text: 'Pago eliminado con éxito!',
+                    customClass: {
+                        confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
+                    }
+                }).then(() => {
+                    // Forzar recarga limpiando el array
+                    usePaymentsStore.setState({ pagos: [] });
+                    fetchPagos();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    text: resp.error || 'Ocurrió un error inesperado',
+                    customClass: {
+                        confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                    }
+                });
+            }
         }
     }
-    useEffect(() => {
-
-        async function getDataPredios() {
-            try {
-                // setLoading(true);
-                const data = await getPrediosSelectModal();
-                setResultsPredios(data.data);
-            } catch (error) {
-                throw Error(error);
-            } finally {
-                // setLoading(false);
-            }
-        }
-        async function getDataClientes() {
-            try {
-                // setLoading(true);
-                const data = await getClientes();
-                setResultsClientes(data.data);
-            } catch (error) {
-                throw Error(error);
-            } finally {
-                // setLoading(false);
-            }
-        }
-        getDataPredios();
-        getDataClientes();
-    }, []);
 
     useEffect(() => {
-        isLotesRoute && getDataPagos();
+        if (isLotesRoute && shouldReloadPagos) {
+            usePaymentsStore.setState({ pagos: [] });
+            fetchPagos();
+            setShouldReloadPagos(false);
+        }
     }, [navigate]);
-
-    const isLotesRoute = location.pathname.endsWith("/pagos");
     return (
         <div className="mx-auto my-20 flex max-w-screen-lg flex-col gap-8">
             {isLotesRoute && <Card>
@@ -141,13 +119,13 @@ export function Payments() {
                     </Typography>
                 </CardHeader>
                 <div className="flex justify-between px-4">
-                        <Button variant="gradient" color="green" size="sm" className="flex items-center gap-3" onClick={goToCreate}>
-                            <PlusIcon className="h-4 w-4" />
-                            Crear
-                        </Button>
-                    </div>
+                    <Button variant="gradient" color="green" size="sm" className="flex items-center gap-3" onClick={goToCreate}>
+                        <PlusIcon className="h-4 w-4" />
+                        Crear
+                    </Button>
+                </div>
                 <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                    
+
                     {/* <div className="flex justify-between px-4 mt-4 gap-2">
                         <Input label="Buscar predios para..." size="md"
                             containerProps={{ className: "w-18 min-w-[100px]" }}
@@ -158,12 +136,12 @@ export function Payments() {
                         </Button>
                     </div> */}
 
-                    {currentData && currentData.length ? (
+                    {pagos && pagos.length ? (
                         <>
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
                                     <tr>
-                                    <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
+                                        <th className="border-b border-blue-gray-50 py-3 px-5 text-left">
                                             <Typography variant="small" className="text-[13px] font-bold uppercase">
                                                 Id Pago
                                             </Typography>
@@ -201,7 +179,7 @@ export function Payments() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {currentData.map((el) => (
+                                    {pagos.map((el) => (
                                         <tr key={el.id}>
                                             <td className={className}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
