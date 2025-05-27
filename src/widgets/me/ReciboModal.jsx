@@ -11,7 +11,17 @@ const lotes = Array.from({ length: 20 }, (_, i) => String(i + 1).padStart(2, "0"
 const tiposPago = ["Transferencia Bancaria", "Depósito en Cuenta", "Cheque de Gerencia"];
 
 const ReciboModal = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
-    const { control, handleSubmit, register, formState: { errors }, watch, reset } = useForm({
+
+const [reciboKey, setReciboKey] = useState(0);
+
+const handleFileChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    setValue("voucher", file);
+    setReciboKey(prev => prev + 1); // 🔁 fuerza nuevo render del PDF
+  }
+};
+    const { control, handleSubmit, register, formState: { errors }, watch, reset, setValue } = useForm({
         defaultValues: {
             tipoPago: "Transferencia Bancaria",
             fecha: dataCuota?.fecha_pago ? dataCuota.fecha_pago.split("T")[0].split("-").reverse().join("-") : "",
@@ -25,8 +35,9 @@ const ReciboModal = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
                 manzana: dataGeneral && dataGeneral.predio.manzana,
                 lote: dataGeneral && dataGeneral.predio.lote,
             },
+            voucher: null, // Para almacenar el archivo del voucher
             persona: dataGeneral && dataGeneral.cliente_pago.map((persona) => ({ nombre: persona.cliente_nombre + " " + persona.cliente_apellido, dni: persona.cliente_dni })),
-            concepto: dataCuota && dataCuota.tipo=="MENSUAL" ? "PAGO DE CUOTA "+dataCuota.numero_cuota : "PARTE DE CUOTA INICIAL",
+            concepto: dataCuota && dataCuota.tipo == "MENSUAL" ? "PAGO DE CUOTA " + dataCuota.numero_cuota : "PARTE DE CUOTA INICIAL",
         }
     });
 
@@ -175,6 +186,18 @@ const ReciboModal = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
                         </div>
                     </div>
                     {errors.montoTotalTexto && <p className="text-red-500 text-sm">{errors.montoTotalTexto.message}</p>} */}
+                    <div>
+                        <h3 className="font-semibold">Imagen de voucher</h3>
+                        <div className="flex flex-col gap-3 mt-3">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="border border-gray-300 rounded p-2"
+                                onChange={handleFileChange}
+                            />
+
+                        </div>
+                    </div>
 
                     {/* Sección de Personas */}
                     <div>
@@ -208,8 +231,9 @@ const ReciboModal = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
                         {
                             isFormComplete() && (
                                 <PDFDownloadLink
+                                    key={reciboKey}
                                     document={<Recibo data={watch()} />}
-                                    fileName={`recibo${dataCuota && dataCuota.tipo=="MENSUAL" ? "PAGOCUOTA_"+dataCuota.numero_cuota : "PARTECUOTAINICIAL"}_${dataGeneral ? dataGeneral.predio.manzana + dataGeneral.predio.lote : ""}.pdf`}
+                                    fileName={`recibo${dataCuota && dataCuota.tipo == "MENSUAL" ? "PAGOCUOTA_" + dataCuota.numero_cuota : "PARTECUOTAINICIAL"}_${dataGeneral ? dataGeneral.predio.manzana + dataGeneral.predio.lote : ""}.pdf`}
                                 >
                                     <Button variant="gradient" color="green">Generar Recibo</Button>
                                 </PDFDownloadLink>

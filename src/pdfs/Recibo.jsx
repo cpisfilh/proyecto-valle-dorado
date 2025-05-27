@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-end',
         marginBottom: 10,
-        marginTop:40
+        marginTop: 40
     },
     logo: {
         width: 80,
@@ -49,10 +49,22 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: '0',
         left: '0',
-        width: '100%',
-        height: 350,
+        width: 595.28,  // tamaño real A4 en pt
+        height: 841.89,
         opacity: 1,
     },
+    voucher: {
+        width: 250,
+        marginTop: 20,
+        marginBottom: 20,
+        objectFit: 'cover',
+    },
+    imageContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 20,
+    }
 });
 
 function montoALetras(monto) {
@@ -91,27 +103,27 @@ const Recibo = ({ data }) => {
         <Document>
             <Page size="A4" style={styles.page}>
                 {/* Marca de agua */}
-                <Image src="/img/MARCAAGUA.jpg" style={styles.watermark} />
+                <Image src="/img/MARCAAGUA.jpg" style={styles.watermark} fixed />
                 <View style={styles.header}>
                     {/* <Image src="/img/logo_pdf.png" style={styles.logo} /> */}
                     <Text style={styles.title}>RECIBO DE DINERO</Text>
                 </View>
                 <View style={styles.section}>
                     <Text style={styles.text}>
-                        Recibo de {" "}
+                        Recibo de{" "}
                         {
                             data.persona && data.persona.map((persona, index, array) => (
                                 <Text key={index}>
                                     <Text style={styles.bold}>{persona.nombre.toUpperCase()}</Text> identificado(a) con DNI N° <Text style={styles.bold}>{persona.dni}</Text>
-                                    {index < array.length - 2 && ", "} {/* Agrega una coma si no es el penúltimo */}
-                                    {index === array.length - 2 && " y "} {/* Agrega "y" antes del último */}
+                                    {index < array.length - 2 && <Text>, </Text>}
+                                    {index === array.length - 2 && <Text> y </Text>}
                                 </Text>
                             ))
                         }
-                        , la cantidad de <Text style={styles.bold}>S/ {" "}{data.montoRecibo}</Text>{" "}
-                        ({montoALetras(data.montoRecibo)}), por concepto de  <Text style={styles.bold}>{data.concepto}</Text> por el {" "}
+                        , la cantidad de <Text style={styles.bold}>S/ {data.montoRecibo}</Text>{" "}
+                        (<Text>{montoALetras(data.montoRecibo)}</Text>), por concepto de <Text style={styles.bold}>{data.concepto}</Text> por el{" "}
                         <Text style={styles.bold}>lote {data.predio.lote} mz. {data.predio.manzana}</Text> del proyecto para casas
-                            de campo <Text style={styles.bold}>Valle Dorado</Text>, ubicado en distrito y provincia de Sullana, departamento de Plura
+                        de campo <Text style={styles.bold}>Valle Dorado</Text>, ubicado en distrito y provincia de Sullana, departamento de Piura
                         (Predio rústico La Capilla RC 18882).
                     </Text>
                     {/* <Text style={styles.text}>
@@ -124,6 +136,13 @@ const Recibo = ({ data }) => {
                         Fecha de pago: <Text style={styles.bold}>{data.fecha}</Text>
                     </Text>
                 </View>
+                {
+                    data.voucher && (
+                        <View style={styles.imageContainer}>
+                            <Image src={data.voucher} style={styles.voucher} />
+                        </View>
+                    )
+                }
             </Page>
         </Document>
     )
