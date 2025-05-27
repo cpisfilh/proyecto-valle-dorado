@@ -33,65 +33,76 @@ const Schedule = () => {
     }
 
     async function pagarCuota(id) {
-        try {
-            const result = await Swal.fire({
-                icon: 'question',
-                text: '¿Desea pagar la cuota?',
-                showDenyButton: true,
-                confirmButtonText: 'Si',
-                denyButtonText: 'No',
-                customClass: {
-                    confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600',
-                    denyButton: 'bg-red-500 text-white rounded hover:bg-red-600'
-                }
-            });
+  try {
+    const result = await Swal.fire({
+      icon: 'question',
+      text: '¿Desea pagar la cuota?, seleccione la fecha de pago.',
+      showDenyButton: true,
+      confirmButtonText: 'Si',
+      denyButtonText: 'No',
+      input: 'date',
+      inputValue: new Date().toISOString().split('T')[0], // fecha actual en formato YYYY-MM-DD
+      customClass: {
+        confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600',
+        denyButton: 'bg-red-500 text-white rounded hover:bg-red-600',
+        input: 'border border-gray-300 rounded p-2 w-1/2 mx-auto'
+      }
+    });
 
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Procesando...',
-                    text: 'Por favor, espere...',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                const fecha_pagon = new Date();
-                const fecha_pago_ajustada = new Date(fecha_pagon.setHours(0, 0, 0, 0)).toISOString();
-                const resp = await axiosInstance.post("/cuota/pay", { id, fecha_pago: fecha_pago_ajustada });
-
-                if (resp.data.message === "exito") {
-                    Swal.fire({
-                        icon: 'success',
-                        text: 'Cuota cancelada!',
-                        customClass: {
-                            confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
-                        }
-                    }).then(() => {
-                        getCuotasxPago();
-                        getDataPago();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        text: resp.error || 'Ocurrió un error inesperado',
-                        customClass: {
-                            confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
-                        }
-                    });
-                }
-            }
-        } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                text: 'Ocurrió un error!',
-                customClass: {
-                    confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
-                }
-            });
+    if (result.isConfirmed && result.value) {
+      Swal.fire({
+        title: 'Procesando...',
+        text: 'Por favor, espere...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
         }
+      });
+
+      // 🔥 Ajustar fecha recibida desde input type="date"
+      // El valor recibido es YYYY-MM-DD
+      const selectedDateStr = result.value; // por ejemplo: "2025-05-27"
+      const localDate = new Date(selectedDateStr + 'T00:00:00'); // zona local
+      const fecha_pago_ajustada = localDate.toISOString(); // a UTC ISO
+
+      const resp = await axiosInstance.post("/cuota/pay", {
+        id,
+        fecha_pago: fecha_pago_ajustada
+      });
+
+      if (resp.data.message === "exito") {
+        Swal.fire({
+          icon: 'success',
+          text: 'Cuota cancelada!',
+          customClass: {
+            confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
+          }
+        }).then(() => {
+          getCuotasxPago();
+          getDataPago();
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          text: resp.error || 'Ocurrió un error inesperado',
+          customClass: {
+            confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+          }
+        });
+      }
     }
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      text: 'Ocurrió un error!',
+      customClass: {
+        confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+      }
+    });
+  }
+}
+
 
     async function revertirpagarCuota(id) {
         try {

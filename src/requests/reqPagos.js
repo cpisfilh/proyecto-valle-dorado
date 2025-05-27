@@ -45,3 +45,12 @@ export async function postDeletePago(data) {
     }
 }
 
+export async function postSearchPagos(data) {
+    try {
+    const response = await axiosInstance.post("/pago/search", { nombre: data });
+    return response.data;
+    } catch (error) {
+     throw Error(error);
+    }
+}
+

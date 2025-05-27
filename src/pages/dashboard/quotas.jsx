@@ -208,7 +208,7 @@ export function Quotas() {
                                                 {
                                                     <>
                                                         <Typography key={el.cliente_id} className="text-md font-normal text-blue-gray-500">
-                                                            Fecha Vencimiento: {el.fecha_vencimiento.split("T")[0]}
+                                                            Fecha Vencimiento: {el.fecha_vencimiento ? el.fecha_vencimiento.split("T")[0]: "No especificada"}
                                                         </Typography>
                                                         <Typography key={el.cliente_id} className="text-md font-normal text-blue-gray-500">
                                                             Fecha Pago: {el.fecha_pago && el.fecha_pago.split("T")[0] || "No pago"}

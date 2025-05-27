@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Button, Card, CardBody, CardHeader, Input, Typography } from "@material-tailwind/react";
+import { Button, Card, CardBody, CardHeader, Input, Spinner, Typography } from "@material-tailwind/react";
 import { CalendarDaysIcon, PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { ToastContainer } from "react-toastify";
-import { getPrediosSelectModal } from "@/requests/reqPredios";
 import usePagination from "@/customhooks/usePagination";
-import { getPagos, postDeletePago } from "@/requests/reqPagos";
+import { postDeletePago, postSearchPagos } from "@/requests/reqPagos";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { getClientes } from "@/requests/reqClientes";
 import Swal from "sweetalert2";
 import usePaymentsStore from "@/store/usePaymentsStore";
 
@@ -27,7 +25,7 @@ export function Payments() {
         setShouldReloadPagos
     } = usePaymentsStore();
 
-    const { currentData, currentPage, totalPages, nextPage, prevPage } = usePagination(pagos, 10);
+    const { currentData, currentPage, totalPages, nextPage, prevPage } = usePagination(pagos, 8);
     const isLotesRoute = location.pathname.endsWith("/pagos");
 
     useEffect(() => {
@@ -53,6 +51,23 @@ export function Payments() {
     function goToCronograma(element) {
         navigate("cronograma", { state: { data: element } });
     }
+
+    async function searchData(name) {
+            if (!name || name.length == 0) return;
+            setLoading(true);
+            const data = await postSearchPagos(name);
+            if (data.message == "exito" && data.data.length == 0) {
+                Swal.fire({
+                    icon: 'error',
+                    text: 'No hay pagos para mostrar!',
+                    customClass: {
+                        confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                    }
+                })
+            }
+            usePaymentsStore.setState({ pagos: data.data });
+            setLoading(false);
+        }
 
     async function removeItem(id) {
         const result = await Swal.fire({
@@ -123,6 +138,21 @@ export function Payments() {
                         <PlusIcon className="h-4 w-4" />
                         Crear
                     </Button>
+                    { loading ? <div className="flex items-center">
+                            Cargando...<Spinner />
+                        </div> : <input
+                            className="block rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                            autoComplete="new-password"
+                            placeholder="Buscar"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    searchData(e.target.value);
+                                }
+                            }}
+
+                        />
+                    }
+                    
                 </div>
                 <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
 
@@ -136,7 +166,7 @@ export function Payments() {
                         </Button>
                     </div> */}
 
-                    {pagos && pagos.length ? (
+                    {currentData && currentData.length ? (
                         <>
                             <table className="w-full min-w-[640px] table-auto">
                                 <thead>
@@ -179,7 +209,7 @@ export function Payments() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {pagos.map((el) => (
+                                    {currentData.map((el) => (
                                         <tr key={el.id}>
                                             <td className={className}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
