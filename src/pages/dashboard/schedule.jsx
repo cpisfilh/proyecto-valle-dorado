@@ -1,3 +1,4 @@
+import React from "react";
 import Recibo from "@/pdfs/Recibo";
 import axiosInstance from "@/requests/axiosConfig";
 import { getPago } from "@/requests/reqPagos";
@@ -33,76 +34,209 @@ const Schedule = () => {
     }
 
     async function pagarCuota(id) {
-  try {
-    const result = await Swal.fire({
-      icon: 'question',
-      text: '¿Desea pagar la cuota?, seleccione la fecha de pago.',
-      showDenyButton: true,
-      confirmButtonText: 'Si',
-      denyButtonText: 'No',
-      input: 'date',
-      inputValue: new Date().toISOString().split('T')[0], // fecha actual en formato YYYY-MM-DD
-      customClass: {
-        confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600',
-        denyButton: 'bg-red-500 text-white rounded hover:bg-red-600',
-        input: 'border border-gray-300 rounded p-2 w-1/2 mx-auto'
-      }
-    });
+        try {
+            let selectedDate = new Date().toISOString().split('T')[0]; // valor por defecto
+            const result = await Swal.fire({
+                icon: 'question',
+                text: '¿Desea pagar la cuota?, seleccione la fecha de pago.',
+                showDenyButton: true,
+                showCancelButton: true,
+                confirmButtonText: 'Confirmar',
+                denyButtonText: 'Pago parcial',
+                input: 'date',
+                inputValue: new Date().toISOString().split('T')[0], // fecha actual en formato YYYY-MM-DD
+                customClass: {
+                    confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600',
+                    denyButton: 'bg-blue-500 text-white rounded hover:bg-blue-600',
+                    cancelButton: 'bg-red-500 text-white rounded hover:bg-red-600',
+                    input: 'border border-gray-300 rounded p-2 w-1/2 mx-auto'
+                },
+                willClose: () => {
+                    const inputEl = Swal.getInput();
+                    if (inputEl?.value) {
+                        selectedDate = inputEl.value;
+                    }
+                }
+            });
 
-    if (result.isConfirmed && result.value) {
-      Swal.fire({
-        title: 'Procesando...',
-        text: 'Por favor, espere...',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        didOpen: () => {
-          Swal.showLoading();
+            if (result.isConfirmed && result.value) {
+                Swal.fire({
+                    title: 'Procesando...',
+                    text: 'Por favor, espere...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                console.log(result.value);
+
+                // 🔥 Ajustar fecha recibida desde input type="date"
+                // El valor recibido es YYYY-MM-DD
+                const selectedDateStr = result.value; // por ejemplo: "2025-05-27"
+                const localDate = new Date(selectedDateStr + 'T00:00:00'); // zona local
+                const fecha_pago_ajustada = localDate.toISOString(); // a UTC ISO
+
+                const resp = await axiosInstance.post("/cuota/pay", {
+                    id,
+                    fecha_pago: fecha_pago_ajustada
+                });
+
+                if (resp.data.message === "exito") {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Cuota cancelada!',
+                        customClass: {
+                            confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
+                        }
+                    }).then(() => {
+                        getCuotasxPago();
+                        getDataPago();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: resp.error || 'Ocurrió un error inesperado',
+                        customClass: {
+                            confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                        }
+                    });
+                }
+            } else if (result.isDenied) {
+                const result1 = await Swal.fire({
+                    icon: 'info',
+                    title: 'Pago parcial',
+                    text: 'Ingrese el monto a pagar',
+                    input: 'number',
+                    confirmButtonText: 'Pagar',
+                    showConfirmButton: true,
+                    showCancelButton: true,
+                    inputAttributes: {
+                        min: 0,
+                        step: 0.01,
+                        class: 'border border-gray-300 rounded p-2 w-1/2 mx-auto'
+                    },
+                    customClass: {
+                        confirmButton: 'bg-blue-500 text-white rounded hover:bg-blue-600',
+                        cancelButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                    }
+                });
+
+                if (result1.isConfirmed && result1.value) {
+                    Swal.fire({
+                        title: 'Procesando...',
+                        text: 'Por favor, espere...',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    // 🔥 Ajustar fecha recibida desde input type="date"
+                    // El valor recibido es YYYY-MM-DD
+                    const selectedDateStr = selectedDate; // por ejemplo: "2025-05-27"
+                    const localDate = new Date(selectedDateStr + 'T00:00:00'); // zona local
+                    const fecha_pago_ajustada = localDate.toISOString(); // a UTC ISO
+
+                    const resp = await axiosInstance.post("/subcuota/create", {
+                        id_cuota: id,
+                        monto: result1.value,
+                        fecha_pago: fecha_pago_ajustada,
+                    });
+
+                    if (resp.data.message === "exito") {
+                        Swal.fire({
+                            icon: 'success',
+                            text: 'Cuota cancelada!',
+                            customClass: {
+                                confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
+                            }
+                        }).then(() => {
+                            getCuotasxPago();
+                            getDataPago();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            text: resp.error || 'Ocurrió un error inesperado',
+                            customClass: {
+                                confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                            }
+                        });
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error al pagar la cuota:", error);
+            Swal.fire({
+                icon: 'error',
+                text: 'Ocurrió un error!',
+                customClass: {
+                    confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                }
+            });
         }
-      });
-
-      // 🔥 Ajustar fecha recibida desde input type="date"
-      // El valor recibido es YYYY-MM-DD
-      const selectedDateStr = result.value; // por ejemplo: "2025-05-27"
-      const localDate = new Date(selectedDateStr + 'T00:00:00'); // zona local
-      const fecha_pago_ajustada = localDate.toISOString(); // a UTC ISO
-
-      const resp = await axiosInstance.post("/cuota/pay", {
-        id,
-        fecha_pago: fecha_pago_ajustada
-      });
-
-      if (resp.data.message === "exito") {
-        Swal.fire({
-          icon: 'success',
-          text: 'Cuota cancelada!',
-          customClass: {
-            confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
-          }
-        }).then(() => {
-          getCuotasxPago();
-          getDataPago();
-        });
-      } else {
-        Swal.fire({
-          icon: 'error',
-          text: resp.error || 'Ocurrió un error inesperado',
-          customClass: {
-            confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
-          }
-        });
-      }
     }
-  } catch (error) {
-    Swal.fire({
-      icon: 'error',
-      text: 'Ocurrió un error!',
-      customClass: {
-        confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
-      }
-    });
-  }
-}
 
+
+    async function eliminarSubCuota(id) {
+        try {
+            const result = await Swal.fire({
+                icon: 'warning',
+                text: '¿Está seguro de eliminar esta subcuota?',
+                showDenyButton: true,
+                confirmButtonText: 'Si',
+                denyButtonText: 'No',
+                customClass: {
+                    confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600',
+                    denyButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                }
+            });
+
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Procesando...',
+                    text: 'Por favor, espere...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                const resp = await axiosInstance.post(`/subcuota/delete`, { id });
+
+                if (resp.data.message === "exito") {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Subcuota eliminada!',
+                        customClass: {
+                            confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
+                        }
+                    }).then(() => {
+                        getCuotasxPago();
+                        getDataPago();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: resp.error || 'Ocurrido un error inesperado',
+                        customClass: {
+                            confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                text: 'Ocurrido un error!',
+                customClass: {
+                    confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                }
+            });
+        }
+    }
 
     async function revertirpagarCuota(id) {
         try {
@@ -199,11 +333,11 @@ const Schedule = () => {
     }, [cuotasxPago]);
 
     useEffect(() => {
-        if(modalAddCuotaInicialOpen==false && modalGenerarCuotasOpen==false){
+        if (modalAddCuotaInicialOpen == false && modalGenerarCuotasOpen == false) {
             getCuotasxPago();
             getDataPago();
         }
-    }, [modalAddCuotaInicialOpen,modalGenerarCuotasOpen]);
+    }, [modalAddCuotaInicialOpen, modalGenerarCuotasOpen]);
 
     return (
         <div className="container mx-auto">
@@ -254,7 +388,7 @@ const Schedule = () => {
                 </Card>
             </div>
 
-            {/* Tabla de Cuotas */}
+            {/* Tabla de Pagos de cuota inicial */}
             <Card className="shadow-lg">
                 <CardHeader floated={false} shadow={false} className="bg-gray-700 p-4 flex justify-between">
                     <h2 className="text-white text-lg font-bold">Pagos de cuota inicial </h2>
@@ -350,7 +484,7 @@ const Schedule = () => {
                             <tbody>
                                 {cuotasxPago.data && cuotasxPago.data.map((cuota, index) => {
                                     if (cuota.tipo === "MENSUAL") {
-                                        return <tr key={index} className="text-center border border-gray-300 odd:bg-gray-100">
+                                        return <React.Fragment key={index}><tr className="text-center border border-gray-300 odd:bg-gray-100">
                                             <td className="p-3">{cuota.numero_cuota}</td>
                                             <td className="p-3">S/ {cuota.monto}</td>
                                             <td className="p-3">{cuota.fecha_vencimiento && cuota.fecha_vencimiento.split("T")[0]}</td>
@@ -376,6 +510,28 @@ const Schedule = () => {
                                                 )}
                                             </td>
                                         </tr>
+                                            {
+                                                cuota.subcuota && cuota.subcuota.map((subcuota, subIndex) => (
+                                                    <tr key={`sub-${subcuota.id}`} className="text-center border bg-blue-100 border-gray-300 odd:bg-gray-100">
+                                                        <td className="p-3">
+                                                            <div className="flex items-center justify-center font-extrabold">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="blue" className="w-5 h-5">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.49 12 3.75 3.75m0 0-3.75 3.75m3.75-3.75H3.74V4.499" />
+                                                                </svg>
+                                                                {cuota.numero_cuota}.{subcuota.numero_subcuota}
+                                                            </div>
+                                                        </td>
+                                                        <td className="p-3">S/ {subcuota.monto}</td>
+                                                        <td className="p-3">-</td>
+                                                        <td className="p-3">{subcuota.fecha_pago && subcuota.fecha_pago.split("T")[0]}</td>
+                                                        <td className="p-3">{subcuota.estado ? "Pagada" : "Pendiente"}</td>
+                                                        <td className="p-3 flex justify-center">
+                                                            <button className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded" onClick={() => eliminarSubCuota(subcuota.id)}>X</button>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            }
+                                        </React.Fragment>
                                     }
 
                                 })}
