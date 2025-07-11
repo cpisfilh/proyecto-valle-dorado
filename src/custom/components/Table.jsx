@@ -7,7 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 
 const Table = ({ title, loading, data, entity, fields, getData, relatedData }) => {
     const navigate = useNavigate();
-    const columns = data && data.length ? Object.keys(data[0]).slice(0, 3) : [];
+    const columns = data && data.length ? Object.keys(data[0]).slice(0, 4) : [];
     const className = "py-3 px-5";
     const currentUrl = window.location.pathname;
 
