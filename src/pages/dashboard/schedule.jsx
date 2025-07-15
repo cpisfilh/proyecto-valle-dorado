@@ -6,7 +6,7 @@ import CronogramaModal from "@/widgets/me/CronogramaModal";
 import CuotaInicialModal from "@/widgets/me/CuotaInicialModal";
 import GenerarCuotasModal from "@/widgets/me/GenerarCuotasModal";
 import ReciboModal from "@/widgets/me/ReciboModal";
-import { DocumentIcon } from "@heroicons/react/24/solid";
+import { DocumentIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Button, Card, CardBody, CardHeader, Spinner } from "@material-tailwind/react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useEffect, useState } from "react";
@@ -309,6 +309,64 @@ const Schedule = () => {
         }
     }
 
+    async function removeItem(id){
+        try {
+            const result = await Swal.fire({
+                icon: 'warning',
+                text: '¿Está seguro de eliminar esta cuota?',
+                showDenyButton: true,
+                confirmButtonText: 'Si',
+                denyButtonText: 'No',
+                customClass: {
+                    confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600',
+                    denyButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                }
+            });
+
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Procesando...',
+                    text: 'Por favor, espere...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                const resp = await axiosInstance.post(`/cuota/deleteCuotaPago`, { id });
+
+                if (resp.data.message === "exito") {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Cuota eliminada!',
+                        customClass: {
+                            confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
+                        }
+                    }).then(() => {
+                        getCuotasxPago();
+                        getDataPago();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: resp.error || 'Ocurrido un error inesperado',
+                        customClass: {
+                            confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                text: 'Ocurrido un error!',
+                customClass: {
+                    confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                }
+            });
+        }
+    }
+
     function handleModalOpen(data) {
         setCuotaGenerarRecibo(data);
     }
@@ -439,6 +497,9 @@ const Schedule = () => {
 
                                                     </>
                                                 )}
+                                                <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded ml-2" onClick={() => removeItem(cuota.id)}>
+                                                    <TrashIcon className="w-6 h-6" />
+                                                </button>
                                             </td>
                                         </tr>
                                     }
@@ -508,6 +569,9 @@ const Schedule = () => {
 
                                                     </>
                                                 )}
+                                                <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded ml-2" onClick={() => removeItem(cuota.id)}>
+                                                    <TrashIcon className="w-6 h-6" />
+                                                </button>
                                             </td>
                                         </tr>
                                             {
