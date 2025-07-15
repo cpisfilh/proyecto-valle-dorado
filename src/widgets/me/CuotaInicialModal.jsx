@@ -18,11 +18,11 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { format, addMonths,parseISO } from "date-fns";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import { postCreateCuota, postCreateCuotaInicial } from "@/requests/reqCuotas";
+import { postCreateCuota, postCreateCuotaInicial, postCreateCuotaMensual } from "@/requests/reqCuotas";
 import { ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
 
-const CuotaInicialModal = ({ isOpen, onClose,dataGeneral,dataCuotas }) => {
+const CuotaInicialModal = ({ isOpen, onClose,dataGeneral,dataCuotas,tipo }) => {
     const [loading, setLoading] = useState(false);
     const { register, handleSubmit, formState: { errors } } = useForm({
         defaultValues: {
@@ -32,7 +32,7 @@ const CuotaInicialModal = ({ isOpen, onClose,dataGeneral,dataCuotas }) => {
             fecha_pago: null, // Fecha de pago
             fecha_vencimiento: null, // Fecha de vencimiento
             estado: "0", // Estado por defecto
-            tipo:"INICIAL"
+            tipo: tipo
         }
     });
 
@@ -40,7 +40,7 @@ const CuotaInicialModal = ({ isOpen, onClose,dataGeneral,dataCuotas }) => {
             const currentUrl = window.location.pathname;
             setLoading(true);
             try {
-                const resp = await postCreateCuotaInicial({...data, estado: data.estado === "0" ? false : true});
+                const resp = tipo==="MENSUAL" ? await postCreateCuotaMensual({...data, estado: data.estado === "0" ? false : true}) :  await postCreateCuotaInicial({...data, estado: data.estado === "0" ? false : true});
                 if (resp.message === "exito") {
                     Swal.fire({
                         icon: 'success',

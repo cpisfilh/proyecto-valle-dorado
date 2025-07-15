@@ -25,6 +25,14 @@ export async function postCreateCuotaInicial(data) {
      throw Error(error);
     }
 }
+export async function postCreateCuotaMensual(data) {
+    try {
+    const response = await axiosInstance.post("/cuota/createCuotaMensual", data);
+    return response.data;
+    } catch (error) {
+     throw Error(error);
+    }
+}
 
 export async function postEditCuota(data) {
     try {

@@ -23,6 +23,7 @@ const Schedule = () => {
     const [modalAddCuotaInicialOpen, setModalAddCuotaInicialOpen] = useState(false);
     const [modalGenerarCuotasOpen, setModalGenerarCuotasOpen] = useState(false);
     const [cuotaGenerarRecibo, setCuotaGenerarRecibo] = useState();
+    const [tipoCuota, setTipoCuota] = useState("INICIAL");
 
     async function getCuotasxPago() {
         try {
@@ -366,6 +367,63 @@ const Schedule = () => {
             });
         }
     }
+    async function removeItemMensual(id){
+        try {
+            const result = await Swal.fire({
+                icon: 'warning',
+                text: '¿Está seguro de eliminar esta cuota?',
+                showDenyButton: true,
+                confirmButtonText: 'Si',
+                denyButtonText: 'No',
+                customClass: {
+                    confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600',
+                    denyButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                }
+            });
+
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Procesando...',
+                    text: 'Por favor, espere...',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                const resp = await axiosInstance.post(`/cuota/deleteCuotaMensualPago`, { id });
+
+                if (resp.data.message === "exito") {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Cuota eliminada!',
+                        customClass: {
+                            confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
+                        }
+                    }).then(() => {
+                        getCuotasxPago();
+                        getDataPago();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: resp.error || 'Ocurrido un error inesperado',
+                        customClass: {
+                            confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                text: 'Ocurrido un error!',
+                customClass: {
+                    confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                }
+            });
+        }
+    }
 
     function handleModalOpen(data) {
         setCuotaGenerarRecibo(data);
@@ -450,12 +508,12 @@ const Schedule = () => {
             <Card className="shadow-lg">
                 <CardHeader floated={false} shadow={false} className="bg-gray-700 p-4 flex justify-between">
                     <h2 className="text-white text-lg font-bold">Pagos de cuota inicial </h2>
-                    {
-                        data && (data.precio_total - data.saldo_actual < data.cuota_inicial) &&
-                        <button className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded ml-2" onClick={() => setModalAddCuotaInicialOpen(true)}>
+                    {/* {
+                        data && (data.precio_total - data.saldo_actual < data.cuota_inicial) && */}
+                        <button className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded ml-2" onClick={() => {setModalAddCuotaInicialOpen(true);setTipoCuota("INICIAL")}}>
                             Registrar +
                         </button>
-                    }
+                    {/* } */}
                 </CardHeader>
                 <CardBody className="pt-2">
                     <div className="overflow-x-auto">
@@ -522,6 +580,9 @@ const Schedule = () => {
                             Generar Cuotas <i className="fas fa-download ml-2"></i>
                         </button>
                     } */}
+                    <button className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded ml-2" onClick={() => {setModalAddCuotaInicialOpen(true);setTipoCuota("MENSUAL")}}>
+                            Registrar +
+                        </button>
                     {
                         cuotasxPago.data && cuotasxPago.data.length > 0 &&
                         <button className="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded ml-2" onClick={() => setModalCronogramaOpen(true)}>
@@ -569,7 +630,7 @@ const Schedule = () => {
 
                                                     </>
                                                 )}
-                                                <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded ml-2" onClick={() => removeItem(cuota.id)}>
+                                                <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded ml-2" onClick={() => removeItemMensual(cuota.id)}>
                                                     <TrashIcon className="w-6 h-6" />
                                                 </button>
                                             </td>
@@ -606,7 +667,7 @@ const Schedule = () => {
             </Card>
             {cuotaGenerarRecibo && (<ReciboModal isOpen={modalOpen} onClose={() => { setModalOpen(false); setCuotaGenerarRecibo(null); }} dataCuota={cuotaGenerarRecibo} dataGeneral={data} />)}
             {modalCronogramaOpen && (<CronogramaModal isOpen={modalCronogramaOpen} onClose={() => setModalCronogramaOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
-            {modalAddCuotaInicialOpen && (<CuotaInicialModal isOpen={modalAddCuotaInicialOpen} onClose={() => setModalAddCuotaInicialOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
+            {modalAddCuotaInicialOpen && (<CuotaInicialModal isOpen={modalAddCuotaInicialOpen} onClose={() => setModalAddCuotaInicialOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} tipo={tipoCuota} />)}
             {modalGenerarCuotasOpen && (<GenerarCuotasModal isOpen={modalGenerarCuotasOpen} onClose={() => setModalGenerarCuotasOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
         </div>
     );
