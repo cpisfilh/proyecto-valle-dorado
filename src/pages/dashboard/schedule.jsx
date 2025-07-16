@@ -16,7 +16,6 @@ import EditCuotaMensualModal from "@/widgets/me/editCuotaMensualModal";
 const Schedule = () => {
     const location = useLocation();
     const [data, setData] = useState(location.state?.data || {});
-    console.log(data);
     const [cuotasxPago, setCuotasxPago] = useState([]);
     const [loading, setLoading] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
