@@ -54,3 +54,12 @@ export async function postSearchPagos(data) {
     }
 }
 
+export async function postEditCurrentBalance(id,data) {
+    try {
+    const response = await axiosInstance.post("/pago/updateBalance", { id,data });
+    return response.data;
+    } catch (error) {
+     throw Error(error);
+    }
+}
+

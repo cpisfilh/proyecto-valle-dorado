@@ -1,29 +1,34 @@
 import React from "react";
 import Recibo from "@/pdfs/Recibo";
 import axiosInstance from "@/requests/axiosConfig";
-import { getPago } from "@/requests/reqPagos";
+import { getPago, postEditCurrentBalance } from "@/requests/reqPagos";
 import CronogramaModal from "@/widgets/me/CronogramaModal";
 import CuotaInicialModal from "@/widgets/me/CuotaInicialModal";
 import GenerarCuotasModal from "@/widgets/me/GenerarCuotasModal";
 import ReciboModal from "@/widgets/me/ReciboModal";
 import { DocumentIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Button, Card, CardBody, CardHeader, Spinner } from "@material-tailwind/react";
-import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
+import EditCuotaMensualModal from "@/widgets/me/editCuotaMensualModal";
 
 const Schedule = () => {
     const location = useLocation();
     const [data, setData] = useState(location.state?.data || {});
+    console.log(data);
     const [cuotasxPago, setCuotasxPago] = useState([]);
     const [loading, setLoading] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalCronogramaOpen, setModalCronogramaOpen] = useState(false);
     const [modalAddCuotaInicialOpen, setModalAddCuotaInicialOpen] = useState(false);
     const [modalGenerarCuotasOpen, setModalGenerarCuotasOpen] = useState(false);
+    const [modalEditarCuotaOpen, setModalEditarCuotaOpen] = useState(false);
     const [cuotaGenerarRecibo, setCuotaGenerarRecibo] = useState();
     const [tipoCuota, setTipoCuota] = useState("INICIAL");
+    const [dataEditCuota, setDataEditCuota] = useState({});
+    const [currentBalanceEdit, setCurrentBalanceEdit] = useState("");
+    const [showCurrentBalanceEdit, setShowCurrentBalanceEdit] = useState(false);
 
     async function getCuotasxPago() {
         try {
@@ -310,7 +315,7 @@ const Schedule = () => {
         }
     }
 
-    async function removeItem(id){
+    async function removeItem(id) {
         try {
             const result = await Swal.fire({
                 icon: 'warning',
@@ -367,7 +372,7 @@ const Schedule = () => {
             });
         }
     }
-    async function removeItemMensual(id){
+    async function removeItemMensual(id) {
         try {
             const result = await Swal.fire({
                 icon: 'warning',
@@ -429,6 +434,73 @@ const Schedule = () => {
         setCuotaGenerarRecibo(data);
     }
 
+    function editItemMensual(data) {
+        console.log(data);
+        setDataEditCuota(data);
+        setModalEditarCuotaOpen(true);
+    }
+
+    function editarSaldo(data) {
+        console.log(data);
+        setShowCurrentBalanceEdit(!showCurrentBalanceEdit);
+    }
+
+    async function handleKeyPress(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+
+            const nuevoSaldo = e.target.value;
+
+            if (isNaN(nuevoSaldo)) {
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Saldo inválido',
+                    customClass: {
+                        confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                    }
+                });
+                return;
+            }
+
+            try {
+                const resp = await postEditCurrentBalance(data.id , nuevoSaldo );
+
+                if (resp.message === "exito") {
+                    Swal.fire({
+                        icon: 'success',
+                        text: 'Saldo actualizado!',
+                        customClass: {
+                            confirmButton: 'bg-green-500 text-white rounded hover:bg-green-600'
+                        }
+                    }).then(() => {
+                        getCuotasxPago();
+                        getDataPago();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        text: resp.error || 'Ocurrió un error inesperado',
+                        customClass: {
+                            confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                        }
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Error en la solicitud',
+                    customClass: {
+                        confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
+                    }
+                });
+            }finally {
+                setShowCurrentBalanceEdit(!showCurrentBalanceEdit);
+                setCurrentBalanceEdit(0);
+            }
+        }
+    }
+
+
     useEffect(() => {
         if (data) {
             getCuotasxPago();
@@ -449,11 +521,11 @@ const Schedule = () => {
     }, [cuotasxPago]);
 
     useEffect(() => {
-        if (modalAddCuotaInicialOpen == false && modalGenerarCuotasOpen == false) {
+        if (modalAddCuotaInicialOpen == false && modalGenerarCuotasOpen == false && modalEditarCuotaOpen == false) {
             getCuotasxPago();
             getDataPago();
         }
-    }, [modalAddCuotaInicialOpen, modalGenerarCuotasOpen]);
+    }, [modalAddCuotaInicialOpen, modalGenerarCuotasOpen, modalEditarCuotaOpen]);
 
     return (
         <div className="container mx-auto">
@@ -499,6 +571,10 @@ const Schedule = () => {
                         </p> */}
                         <p className="text-lg">
                             <span className="text-green-700 font-bold">Saldo Actual:</span> S/ {data?.saldo_actual}
+                            <PencilIcon className="inline-block ml-2 w-5 h-5 text-gray-500 hover:text-gray-700 cursor-pointer" onClick={() => editarSaldo()} />
+                            {showCurrentBalanceEdit && (
+                                <input type="number" step="0.01" className="border border-gray-300 rounded-md p-2 ml-2" value={currentBalanceEdit} onChange={(e) => setCurrentBalanceEdit(e.target.value)} onKeyDown={handleKeyPress} />
+                            )}
                         </p>
                     </CardBody>
                 </Card>
@@ -510,9 +586,9 @@ const Schedule = () => {
                     <h2 className="text-white text-lg font-bold">Pagos de cuota inicial </h2>
                     {/* {
                         data && (data.precio_total - data.saldo_actual < data.cuota_inicial) && */}
-                        <button className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded ml-2" onClick={() => {setModalAddCuotaInicialOpen(true);setTipoCuota("INICIAL")}}>
-                            Registrar +
-                        </button>
+                    <button className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded ml-2" onClick={() => { setModalAddCuotaInicialOpen(true); setTipoCuota("INICIAL") }}>
+                        Registrar +
+                    </button>
                     {/* } */}
                 </CardHeader>
                 <CardBody className="pt-2">
@@ -580,9 +656,9 @@ const Schedule = () => {
                             Generar Cuotas <i className="fas fa-download ml-2"></i>
                         </button>
                     } */}
-                    <button className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded ml-2" onClick={() => {setModalAddCuotaInicialOpen(true);setTipoCuota("MENSUAL")}}>
-                            Registrar +
-                        </button>
+                    <button className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded ml-2" onClick={() => { setModalAddCuotaInicialOpen(true); setTipoCuota("MENSUAL") }}>
+                        Registrar +
+                    </button>
                     {
                         cuotasxPago.data && cuotasxPago.data.length > 0 &&
                         <button className="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded ml-2" onClick={() => setModalCronogramaOpen(true)}>
@@ -630,6 +706,9 @@ const Schedule = () => {
 
                                                     </>
                                                 )}
+                                                <button className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded ml-2" onClick={() => editItemMensual(cuota)}>
+                                                    <PencilIcon className="w-6 h-6" />
+                                                </button>
                                                 <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded ml-2" onClick={() => removeItemMensual(cuota.id)}>
                                                     <TrashIcon className="w-6 h-6" />
                                                 </button>
@@ -669,6 +748,7 @@ const Schedule = () => {
             {modalCronogramaOpen && (<CronogramaModal isOpen={modalCronogramaOpen} onClose={() => setModalCronogramaOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
             {modalAddCuotaInicialOpen && (<CuotaInicialModal isOpen={modalAddCuotaInicialOpen} onClose={() => setModalAddCuotaInicialOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} tipo={tipoCuota} />)}
             {modalGenerarCuotasOpen && (<GenerarCuotasModal isOpen={modalGenerarCuotasOpen} onClose={() => setModalGenerarCuotasOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
+            {modalEditarCuotaOpen && (<EditCuotaMensualModal isOpen={modalEditarCuotaOpen} onClose={() => setModalEditarCuotaOpen(false)} dataGeneral={dataEditCuota} />)}
         </div>
     );
 };

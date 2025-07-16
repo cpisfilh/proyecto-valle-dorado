@@ -43,6 +43,15 @@ export async function postEditCuota(data) {
     }
 }
 
+export async function postEditCuotaMensual(data) {
+    try {
+    const response = await axiosInstance.post("/cuota/editMensual", data);
+    return response.data;
+    } catch (error) {
+     throw Error(error);
+    }
+}
+
 export async function postDeleteCuota(data) {
     try {
     const response = await axiosInstance.post("/cuota/delete", { id: data });
