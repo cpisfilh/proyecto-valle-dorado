@@ -55,9 +55,10 @@ const styles = StyleSheet.create({
     },
     voucher: {
         width: 250,
+        maxHeight: 450,
         marginTop: 20,
         marginBottom: 20,
-        objectFit: 'cover',
+        objectFit: 'contain',
     },
     imageContainer: {
         display: 'flex',
@@ -138,7 +139,7 @@ const Recibo = ({ data }) => {
                 </View>
                 {
                     data.voucher && (
-                        <View style={styles.imageContainer}>
+                        <View style={styles.imageContainer} wrap={false}>
                             <Image src={data.voucher} style={styles.voucher} />
                         </View>
                     )

@@ -88,7 +88,7 @@ const EditCuotaMensualModal = ({ isOpen, onClose,dataGeneral,dataCuotas,tipo }) 
           {/* Monto */}
           <div className="mb-4">
             <label className="block text-gray-700 font-bold">Monto</label>
-            <Input type="number" {...register("monto", { required: "Campo requerido" })} />
+            <Input type="text" {...register("monto", { required: "Campo requerido" })} />
             {errors.monto && <Typography className="text-red-500 text-sm font-bold">{errors.monto.message}</Typography>}
           </div>
 
