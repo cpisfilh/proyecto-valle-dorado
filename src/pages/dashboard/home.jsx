@@ -86,7 +86,7 @@ export function Home() {
                       key={cuota.idCuota}
                     >
                       {cuota.manzana + "-" + cuota.lote} | {cuota.clientes[0]} |{" "}
-                      {cuota.fecha_vencimiento.split("T")[0]} |{" "}
+                      {cuota.fecha_vencimiento?.split("T")[0]} |{" "}
                       {Number(cuota.monto).toFixed(2)}
                     </li>
                   ))}
