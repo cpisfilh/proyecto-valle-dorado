@@ -62,11 +62,11 @@ const chunkArray = (arr, size) =>
   arr.reduce((acc, _, i) => (i % size ? acc : [...acc, arr.slice(i, i + size)]), []);
 
 const Cronograma = ({ formData, cuotas, formatearFecha }) => {
-  const fechas = cuotas.map((c) => formatearFecha(c.fecha_vencimiento));
-  const montos = cuotas.map((c) => parseFloat(c.monto));
+  const fechas = cuotas?.map((c) => formatearFecha(c.fecha_vencimiento));
+  const montos = cuotas?.map((c) => parseFloat(c.monto));
 
-  const fechaChunks = chunkArray(fechas, 5);
-  const montoChunks = chunkArray(montos, 5);
+  const fechaChunks = chunkArray(fechas || [], 5) || [];
+  const montoChunks = chunkArray(montos || [], 5) || [];
 
 
   return (
@@ -75,14 +75,14 @@ const Cronograma = ({ formData, cuotas, formatearFecha }) => {
       {/* Marca de agua */}
       <Image src="/img/MARCAAGUA.jpg" style={styles.watermark} fixed />
         <Text style={styles.title}>
-          Cronograma de pagos - Lote {formData.predio?.lote}, Mz. {formData.predio?.manzana}
+          Cronograma de pagos - Lote {formData?.predio?.lote}, Mz. {formData?.predio?.manzana}
         </Text>
 
         {/* Info inicial */}
         <View style={styles.section}>
           <Text style={styles.label}>Cliente(s):</Text>
           {
-            formData.cliente_pago.map(e =>(
+            formData?.cliente_pago?.map(e =>(
                 <Text key={e.cliente_id} style={styles.value}>{e.cliente_nombre + " " + e.cliente_apellido + " - " + e.cliente_dni}</Text>
             ))
           }

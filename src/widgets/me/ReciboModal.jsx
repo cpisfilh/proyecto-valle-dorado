@@ -12,15 +12,15 @@ const tiposPago = ["Transferencia Bancaria", "Depósito en Cuenta", "Cheque de G
 
 const ReciboModal = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
 
-const [reciboKey, setReciboKey] = useState(0);
+    const [reciboKey, setReciboKey] = useState(0);
 
-const handleFileChange = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    setValue("voucher", file);
-    setReciboKey(prev => prev + 1); // 🔁 fuerza nuevo render del PDF
-  }
-};
+    const handleFileChange = (e, campo) => {
+        const file = e.target.files[0];
+        if (file) {
+            setValue(campo, file);
+            setReciboKey(prev => prev + 1); // 🔁 fuerza nuevo render del PDF
+        }
+    };
     const { control, handleSubmit, register, formState: { errors }, watch, reset, setValue } = useForm({
         defaultValues: {
             tipoPago: "Transferencia Bancaria",
@@ -36,6 +36,7 @@ const handleFileChange = (e) => {
                 lote: dataGeneral && dataGeneral.predio.lote,
             },
             voucher: null, // Para almacenar el archivo del voucher
+            voucher2: null,
             persona: dataGeneral && dataGeneral.cliente_pago.map((persona) => ({ nombre: persona.cliente_nombre + " " + persona.cliente_apellido, dni: persona.cliente_dni })),
             concepto: dataCuota && dataCuota.tipo == "MENSUAL" ? "PAGO DE CUOTA " + dataCuota.numero_cuota : "PARTE DE CUOTA INICIAL",
         }
@@ -193,7 +194,20 @@ const handleFileChange = (e) => {
                                 type="file"
                                 accept="image/*"
                                 className="border border-gray-300 rounded p-2"
-                                onChange={handleFileChange}
+                                onChange={(e) => handleFileChange(e, 'voucher')}
+                            />
+
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 className="font-semibold">Imagen de voucher 2</h3>
+                        <div className="flex flex-col gap-3 mt-3">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="border border-gray-300 rounded p-2"
+                                onChange={(e) => handleFileChange(e, 'voucher2')}
                             />
 
                         </div>

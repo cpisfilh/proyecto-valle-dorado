@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
         opacity: 1,
     },
     voucher: {
-        width: 250,
+        width: 220,
         maxHeight: 450,
         marginTop: 20,
         marginBottom: 20,
@@ -62,9 +62,11 @@ const styles = StyleSheet.create({
     },
     imageContainer: {
         display: 'flex',
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 20,
+        gap: 10
     }
 });
 
@@ -88,6 +90,7 @@ function montoALetras(monto) {
 
 // Componente del recibo
 const Recibo = ({ data }) => {
+    console.log(data);
     if (!data) {
         return (
             <Document>
@@ -137,13 +140,10 @@ const Recibo = ({ data }) => {
                         Fecha de pago: <Text style={styles.bold}>{data.fecha}</Text>
                     </Text>
                 </View>
-                {
-                    data.voucher && (
-                        <View style={styles.imageContainer} wrap={false}>
-                            <Image src={data.voucher} style={styles.voucher} />
-                        </View>
-                    )
-                }
+                <View style={styles.imageContainer}>
+                    {data.voucher && <Image src={data.voucher} style={styles.voucher} />}
+                    {data.voucher2 && <Image src={data.voucher2} style={styles.voucher} />}
+                </View>
             </Page>
         </Document>
     )
