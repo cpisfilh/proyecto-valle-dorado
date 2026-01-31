@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import EditCuotaMensualModal from "@/widgets/me/editCuotaMensualModal";
+import ReciboModalNew from "@/widgets/me/ReciboModalNew";
 
 const Schedule = () => {
     const location = useLocation();
@@ -743,7 +744,7 @@ const Schedule = () => {
                     </div>
                 </CardBody>
             </Card>
-            {cuotaGenerarRecibo && (<ReciboModal isOpen={modalOpen} onClose={() => { setModalOpen(false); setCuotaGenerarRecibo(null); }} dataCuota={cuotaGenerarRecibo} dataGeneral={data} />)}
+            {cuotaGenerarRecibo && (<ReciboModalNew isOpen={modalOpen} onClose={() => { setModalOpen(false); setCuotaGenerarRecibo(null); }} dataCuota={cuotaGenerarRecibo} dataGeneral={data} />)}
             {modalCronogramaOpen && (<CronogramaModal isOpen={modalCronogramaOpen} onClose={() => setModalCronogramaOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}
             {modalAddCuotaInicialOpen && (<CuotaInicialModal isOpen={modalAddCuotaInicialOpen} onClose={() => setModalAddCuotaInicialOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} tipo={tipoCuota} />)}
             {modalGenerarCuotasOpen && (<GenerarCuotasModal isOpen={modalGenerarCuotasOpen} onClose={() => setModalGenerarCuotasOpen(false)} dataGeneral={data} dataCuotas={cuotasxPago} />)}

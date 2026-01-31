@@ -215,7 +215,7 @@ const ReciboModal = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
 
                     {/* Sección de Personas */}
                     <div>
-                        <h3 className="font-semibold">Personas</h3>
+                        <h3 className="font-semibold">Clientes</h3>
                         <div className="flex flex-col gap-3 mt-3">
                             {fields.map((field, index) => (
                                 <div key={field.id} className="flex flex-col md:flex-row gap-2">

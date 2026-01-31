@@ -6,6 +6,7 @@ import {
   CardBody,
   CardFooter,
   Spinner,
+  CardHeader,
 } from "@material-tailwind/react";
 import { StatisticsCard } from "@/widgets/cards";
 import {
@@ -20,6 +21,8 @@ import ReciboModal from "../../widgets/me/ReciboModal";
 import * as XLSX from "xlsx";
 import CronogramaModal from "@/widgets/me/CronogramaModal";
 import { getFirstToExpire } from "@/requests/reqCuotas";
+import { useQuery } from "@tanstack/react-query";
+import ReciboModalNew from "@/widgets/me/ReciboModalNew";
 
 export const statisticsCardsData = [
   {
@@ -49,38 +52,35 @@ export const statisticsCardsData = [
 export function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalCronogramaOpen, setModalCronogramaOpen] = useState(false);
-  const [cuotasPorVencer, setCuotasPorVencer] = useState([]);
-  const [loading, setLoading] = useState(false);
 
-  const traerCuotasPorVencer = async () => {
-    setLoading(true);
-    try {
-      const response = await getFirstToExpire();
-      setCuotasPorVencer(response.data);
-    } catch (error) {
-      throw Error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    traerCuotasPorVencer();
-  }, []);
+  const { data: cuotasPorVencer, isLoading: loading, refetch, isRefetching } = useQuery({
+    queryKey: ["cuotasPorVencer"],
+    queryFn: getFirstToExpire,
+    staleTime: 1000 * 60 * 60, // 1 hour
+  })
 
   return (
     <div>
-      <div className="mb-6 grid grid-cols-1 gap-y-12 gap-x-6 md:grid-cols-1 xl:grid-cols-2">
+      <div className="mb-6 grid grid-cols-1 gap-y-12 gap-x-6 md:grid-cols-1">
         <Card className="mt-6">
           <CardBody>
-            <Typography variant="h5" color="blue-gray" className="mb-2 text-center">
-              PRIMERAS 5 CUOTAS POR VENCER
-            </Typography>
+            <div
+              variant="gradient"
+              color="blue"
+              className="flex items-center justify-between mb-4"
+            >
+              <Typography variant="h3">
+                CUOTAS POR VENCER
+              </Typography>
+              <Button className="flex justify-center" onClick={refetch}>
+                Recargar
+              </Button>
+            </div>
             {/* <Typography> */}
-            {!loading ? (
-              cuotasPorVencer.length > 0 ? (
+            {(!loading && !isRefetching) ? (
+              cuotasPorVencer.data.length > 0 ? (
                 <ul>
-                  {cuotasPorVencer.map((cuota) => (
+                  {cuotasPorVencer.data.map((cuota) => (
                     <li
                       className="mb-2 p-1 rounded-lg border border-black"
                       key={cuota.idCuota}
@@ -110,7 +110,7 @@ export function Home() {
       </div>
       <Button className="flex items-center gap-3" onClick={() => setModalOpen(true)}>Generar Recibo <DocumentChartBarIcon strokeWidth={2} className="h-4 w-4 " /></Button>
       <Button className="flex items-center gap-3 mt-2" onClick={() => setModalCronogramaOpen(true)}>Generar Cronograma de pagos <CalendarIcon strokeWidth={2} className="h-4 w-4 " /></Button>
-      <ReciboModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      <ReciboModalNew isOpen={modalOpen} onClose={() => setModalOpen(false)} />
       <CronogramaModal isOpen={modalCronogramaOpen} onClose={() => setModalCronogramaOpen(false)} />
     </div>
   );

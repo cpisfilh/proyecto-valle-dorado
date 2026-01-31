@@ -116,17 +116,24 @@ const Recibo = ({ data }) => {
                     <Text style={styles.text}>
                         Recibo de{" "}
                         {
-                            data.persona && data.persona.map((persona, index, array) => (
+                            data.cliente && data.cliente.map((cliente, index, array) => (
                                 <Text key={index}>
-                                    <Text style={styles.bold}>{persona.nombre.toUpperCase()}</Text> identificado(a) con DNI N° <Text style={styles.bold}>{persona.dni}</Text>
+                                    <Text style={styles.bold}>{(cliente.nombres + " " + cliente.apellidos).toUpperCase()}</Text> identificado(a) con DNI N° <Text style={styles.bold}>{cliente.dni}</Text>
                                     {index < array.length - 2 && <Text>, </Text>}
                                     {index === array.length - 2 && <Text> y </Text>}
                                 </Text>
                             ))
                         }
                         , la cantidad de <Text style={styles.bold}>S/ {data.montoRecibo}</Text>{" "}
-                        (<Text>{montoALetras(data.montoRecibo)}</Text>), por concepto de <Text style={styles.bold}>{data.concepto}</Text> por el{" "}
-                        <Text style={styles.bold}>lote {data.predio.lote} mz. {data.predio.manzana}</Text> del proyecto para casas
+                        (<Text>{montoALetras(data.montoRecibo)}</Text>), por concepto de <Text style={styles.bold}>{data.concepto}</Text> <Text>
+                            por
+                            <Text style={styles.bold}>
+                                {data.predio.length === 1 ? " el lote" : " los lotes"}{" "}
+                                {data.predio.map((p, i) => (
+                                    `${p.lote} mz. ${p.manzana}`
+                                )).join(", ")}
+                            </Text>
+                        </Text> del proyecto para casas
                         de campo <Text style={styles.bold}>Valle Dorado</Text>, ubicado en distrito y provincia de Sullana, departamento de Piura
                         (Predio rústico La Capilla RC 18882).
                     </Text>
@@ -141,7 +148,7 @@ const Recibo = ({ data }) => {
                     </Text>
                 </View>
                 <View style={styles.imageContainer}>
-                    {data.voucher && <Image src={data.voucher} style={styles.voucher} />}
+                    {data.voucher1 && <Image src={data.voucher1} style={styles.voucher} />}
                     {data.voucher2 && <Image src={data.voucher2} style={styles.voucher} />}
                 </View>
             </Page>
