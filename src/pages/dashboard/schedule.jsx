@@ -1,13 +1,11 @@
 import React from "react";
-import Recibo from "@/pdfs/Recibo";
 import axiosInstance from "@/requests/axiosConfig";
 import { getPago, postEditCurrentBalance } from "@/requests/reqPagos";
 import CronogramaModal from "@/widgets/me/CronogramaModal";
 import CuotaInicialModal from "@/widgets/me/CuotaInicialModal";
 import GenerarCuotasModal from "@/widgets/me/GenerarCuotasModal";
-import ReciboModal from "@/widgets/me/ReciboModal";
 import { DocumentIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
-import { Button, Card, CardBody, CardHeader, Spinner } from "@material-tailwind/react";
+import { Card, CardBody, CardHeader } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Swal from "sweetalert2";

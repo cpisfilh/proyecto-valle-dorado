@@ -1,6 +1,6 @@
 import { getClientes } from "@/requests/reqClientes";
 import { getPrediosSelectModal } from "@/requests/reqPredios";
-import { Dialog, DialogHeader, DialogBody, Select, Button } from "@material-tailwind/react";
+import { Dialog, DialogHeader, DialogBody, Button } from "@material-tailwind/react";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, X } from "lucide-react";
 import { useEffect } from "react";
@@ -9,13 +9,13 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useState } from "react";
 import Recibo from "@/pdfs/Recibo";
 
-const tiposPago = ["Transferencia Bancaria", "Depósito en Cuenta", "Cheque de Gerencia"];
+const tiposPago = ["Transferencia Bancaria", "Depósito en Cuenta", "Yape", "Plin", "Cheque de Gerencia"];
 
 const ReciboModalNew = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
     const [pdfData, setPdfData] = useState(null);
     console.log(dataCuota);
 
-    const { control, register, watch, formState: { errors }, reset, setValue, handleSubmit } = useForm({
+    const { control, register, formState: { errors }, reset, setValue, handleSubmit } = useForm({
         defaultValues: {
             predio: [{
                 id: dataGeneral?.predio_id || "",

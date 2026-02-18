@@ -4,20 +4,14 @@ import {
   Button,
   Card,
   CardBody,
-  CardFooter,
   Spinner,
-  CardHeader,
 } from "@material-tailwind/react";
-import { StatisticsCard } from "@/widgets/cards";
 import {
   BanknotesIcon,
-  UserPlusIcon,
   UsersIcon,
-  ChartBarIcon,
   CalendarIcon,
   DocumentChartBarIcon,
 } from "@heroicons/react/24/solid";
-import ReciboModal from "../../widgets/me/ReciboModal";
 import * as XLSX from "xlsx";
 import CronogramaModal from "@/widgets/me/CronogramaModal";
 import { getFirstToExpire } from "@/requests/reqCuotas";
