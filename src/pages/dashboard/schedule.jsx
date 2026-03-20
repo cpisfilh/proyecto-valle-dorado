@@ -9,7 +9,7 @@ import { Card, CardBody, CardHeader } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
-import EditCuotaMensualModal from "@/widgets/me/editCuotaMensualModal";
+import EditCuotaMensualModal from "@/widgets/me/EditCuotaMensualModal";
 import ReciboModalNew from "@/widgets/me/ReciboModalNew";
 
 const Schedule = () => {
