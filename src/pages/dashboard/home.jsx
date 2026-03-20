@@ -64,7 +64,7 @@ export function Home() {
               className="flex items-center justify-between mb-4"
             >
               <Typography variant="h3">
-                CUOTAS POR VENCER
+                Cuotas por vencer
               </Typography>
               <Button className="flex justify-center" onClick={refetch}>
                 Recargar
