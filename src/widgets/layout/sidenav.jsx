@@ -98,7 +98,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
 
 Sidenav.defaultProps = {
   brandImg: "/img/log_shr_inmobiliaria.png",
-  brandName: "Proyecto Valle Dorado",
+  brandName: `Proyecto ${import.meta.env.VITE_PROJECT_NAME || "Valle Dorado"}`,
 };
 
 Sidenav.propTypes = {
