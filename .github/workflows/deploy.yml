@@ -20,6 +20,7 @@ jobs:
         run: npm run build
         env:
           VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
+          VITE_PROJECT_NAME: ${{ secrets.VITE_PROJECT_NAME }}
 
       - name: 🧹 Clean VPS folder
         uses: appleboy/ssh-action@v1.0.3
