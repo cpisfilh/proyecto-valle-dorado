@@ -134,8 +134,8 @@ const Recibo = ({ data }) => {
                                 )).join(", ")}
                             </Text>
                         </Text> del proyecto para casas
-                        de campo <Text style={styles.bold}>Valle Dorado</Text>, ubicado en distrito y provincia de Sullana, departamento de Piura
-                        (Predio rústico La Capilla RC 18882).
+                        de campo <Text style={styles.bold}>{import.meta.env.VITE_PROJECT_NAME}</Text>, ubicado en distrito y provincia de Sullana, departamento de Piura
+                        (Predio rústico La Capilla RC {import.meta.env.VITE_PROJECT_RC}).
                     </Text>
                     {/* <Text style={styles.text}>
                     Será descontado del monto total del precio que es <Text style={styles.bold}>S/ {" "}{data.montoTotal}</Text> ({montoALetras(data.montoTotal)}) del lote según lo establecido en el acuerdo.

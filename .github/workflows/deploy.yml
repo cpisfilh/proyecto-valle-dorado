@@ -21,6 +21,7 @@ jobs:
         env:
           VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
           VITE_PROJECT_NAME: ${{ secrets.VITE_PROJECT_NAME }}
+          VITE_PROJECT_RC: ${{ secrets.VITE_PROJECT_RC }}
 
       - name: 🧹 Clean VPS folder
         uses: appleboy/ssh-action@v1.0.3
