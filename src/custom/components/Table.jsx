@@ -7,7 +7,11 @@ import { toast, ToastContainer } from "react-toastify";
 
 const Table = ({ title, loading, data, entity, fields, getData, relatedData }) => {
     const navigate = useNavigate();
-    const columns = data && data.length ? Object.keys(data[0]).slice(0, 5) : [];
+    const columns = data && data.length
+      ? Object.keys(data[0])
+          .filter(key => key !== "proyecto_id")
+          .slice(0, 5)
+      : [];
     const className = "py-3 px-5";
     const currentUrl = window.location.pathname;
 
@@ -37,7 +41,8 @@ const Table = ({ title, loading, data, entity, fields, getData, relatedData }) =
             }
         });
     }
-    
+
+  console.log(currentData)
 
     return (
         <Card>
@@ -53,7 +58,7 @@ const Table = ({ title, loading, data, entity, fields, getData, relatedData }) =
                     </Button>
                 </div>
             <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
-                
+
                 {currentData && currentData.length ? (
                     <>
                         <table className="w-full min-w-[640px] table-auto">
@@ -74,10 +79,32 @@ const Table = ({ title, loading, data, entity, fields, getData, relatedData }) =
                                         {columns.map((column, index) => (
                                             <td className={className} key={column}>
                                                 <Typography className="text-md font-normal text-blue-gray-500">
-                                                    {
-                                                        typeof el[column] === "boolean" ? (el[column] ? "Activo" : "Inactivo") : 
-                                                        column.includes("_id") ? (relatedData[column.split("_id")[0]]?.find(item => item.id === el[column])?.valor || "-") : el[columns[index]]
-                                                    }
+                                                  {
+                                                    typeof el[column] === "boolean"
+
+                                                      ? (
+                                                          el[column]
+                                                            ? "Activo"
+                                                            : "Inactivo"
+                                                        )
+
+                                                      : (
+                                                          column.includes("_id") &&
+                                                          column !== "proyecto_id"
+                                                        )
+
+                                                        ? (
+                                                            relatedData[
+                                                              column.split("_id")[0]
+                                                            ]
+                                                              ?.find(
+                                                                item =>
+                                                                  item.id === el[column]
+                                                              )?.valor || "-"
+                                                          )
+
+                                                        : el[columns[index]]
+                                                  }
                                                 </Typography>
                                             </td>
                                         ))}

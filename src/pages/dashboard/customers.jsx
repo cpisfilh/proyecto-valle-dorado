@@ -36,7 +36,7 @@ export function Customers() {
         required: true,
         maxLength: 9,
         minLength: 9
-    }];
+      }];
     async function getData() {
         const data = await getClientes()
         setCustomerData(data.data);
@@ -53,11 +53,11 @@ export function Customers() {
 
     return (
         <div className="mx-auto my-20 flex max-w-screen-lg flex-col gap-8">
-            {isClientesRoute && 
-                <Table 
+            {isClientesRoute &&
+                <Table
                     title="Tabla de Clientes"
-                    loading={loading} 
-                    entity="Cliente" data={customerData} 
+                    loading={loading}
+                    entity="Cliente" data={customerData}
                     fields={customerFields}
                     getData={getData}
                      />}

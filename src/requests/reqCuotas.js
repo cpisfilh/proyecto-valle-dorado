@@ -17,6 +17,7 @@ export async function postCreateCuota(data) {
      throw Error(error);
     }
 }
+
 export async function postCreateCuotaInicial(data) {
     try {
     const response = await axiosInstance.post("/cuota/createCuotaInicial", data);
@@ -25,6 +26,7 @@ export async function postCreateCuotaInicial(data) {
      throw Error(error);
     }
 }
+
 export async function postCreateCuotaMensual(data) {
     try {
     const response = await axiosInstance.post("/cuota/createCuotaMensual", data);
@@ -77,4 +79,51 @@ export async function postGenerarCuotas(data) {
     } catch (error) {
      throw Error(error);
     }
+}
+
+export async function uploadReceipt(
+  cuotaId,
+  file,
+  onUploadProgress
+) {
+
+  const formData = new FormData();
+
+  formData.append(
+    "file",
+    file
+  );
+
+  formData.append(
+    "cuota_id",
+    cuotaId
+  );
+
+  const response =
+    await axiosInstance.post(
+      "/cuota/uploadReceipt",
+      formData,
+      {
+        headers: {
+          "Content-Type":
+            "multipart/form-data",
+        },
+
+        onUploadProgress,
+      }
+    );
+
+  return response.data;
+}
+
+export async function getReceiptUrl(
+  cuotaId
+) {
+
+  const response =
+    await axiosInstance.get(
+      `/cuota/getReceiptUrl/${cuotaId}`
+    );
+
+  return response.data;
 }

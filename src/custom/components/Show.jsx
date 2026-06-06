@@ -42,7 +42,10 @@ const Show = () => {
         </Typography>
       </CardHeader>
       <CardBody className="px-6 py-4">
-        {data && Object.keys(data).map((key) => (
+        {data &&
+          Object.keys(data)
+            .filter((key) => key !== "proyecto_id")
+            .map((key) => (
           <div key={key} className="flex justify-between items-center py-2">
             <Typography className="font-medium text-gray-600">{key.includes("_id") ? key.split("_")[0].toUpperCase() : key.toUpperCase()}</Typography>
             <Typography className="font-light text-gray-900">{typeof data[key] === "boolean" ? (data[key] ? "Activo" : "Inactivo") : key.includes("_id") ? selectState[key.split("_")[0]]?.data?.find((item) => item.id === data[key])?.valor || "Desconocido" : data[key]}</Typography>

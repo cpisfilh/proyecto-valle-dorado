@@ -162,14 +162,19 @@ export const routes = [
         element: <Lots />,
         children: [
           {
-            name: "Crear Pago",
-            path: "create",
-            element: <CreatePayment />,
+            name: "Mostrar Lote",
+            path: "show",
+            element: <Show />,
           },
           {
-            name: "Editar Pago",
+            name: "Crear Lote",
+            path: "create",
+            element: <Create />,
+          },
+          {
+            name: "Editar Lote",
             path: "edit",
-            element: <EditPayment />,
+            element: <Edit />,
           }
         ],
       },

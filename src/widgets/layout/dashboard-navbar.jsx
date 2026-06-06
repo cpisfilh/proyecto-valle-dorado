@@ -11,6 +11,8 @@ import {
   MenuList,
   MenuItem,
   Avatar,
+  Select,
+    Option
 } from "@material-tailwind/react";
 import {
   UserCircleIcon,
@@ -20,6 +22,7 @@ import {
   CreditCardIcon,
   Bars3Icon,
 } from "@heroicons/react/24/solid";
+
 import {
   useMaterialTailwindController,
   setOpenConfigurator,
@@ -27,13 +30,109 @@ import {
 } from "@/context";
 import useAuthStore from "@/store/authStore";
 
+import {
+  changeProject,
+  logoutRequest
+} from "@/requests/auth";
+
+import {
+  getProjects
+} from "@/requests/reqProyectos";
+import { useState } from "react";
+import { useEffect } from "react";
+
 export function DashboardNavbar() {
   const currentUser = useAuthStore((state) => state.currentUser);
   const logout = useAuthStore((state) => state.logout);
+
+  const setCurrentUser = useAuthStore(
+    (state) => state.setCurrentUser
+  );
+
   const [controller, dispatch] = useMaterialTailwindController();
   const { fixedNavbar, openSidenav } = controller;
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
+  const [projects, setProjects] =
+    useState([]);
+
+  const handleLogout = async () => {
+
+    try {
+
+      await logoutRequest();
+
+      logout();
+
+      window.location.href =
+        "/auth/sign-in";
+
+    } catch (error) {
+
+      console.error(error);
+    }
+  };
+
+  const handleChangeProject = async (
+    proyectoId
+  ) => {
+
+    try {
+
+      const response =
+        await changeProject(
+          Number(proyectoId)
+        );
+
+      if (
+        response.message === "exito"
+      ) {
+
+        setCurrentUser({
+          ...currentUser,
+          proyecto:
+            response.data.proyecto
+        });
+
+        // 🔥 recargar app tenant
+        window.location.replace(
+          "/dashboard/home"
+        );
+      }
+
+    } catch (error) {
+
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+
+    const loadProjects = async () => {
+
+      try {
+
+        const response =
+          await getProjects();
+
+        if (
+          response.message === "exito"
+        ) {
+
+          setProjects(
+            response.data
+          );
+        }
+
+      } catch (error) {
+
+        console.error(error);
+      }
+    };
+
+    loadProjects();
+
+  }, []);
 
   return (
     <Navbar
@@ -72,7 +171,7 @@ export function DashboardNavbar() {
             {page ? page : "Dashboard"}
           </Typography>
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center gap-3">
           {/* <div className="mr-auto md:mr-4 md:w-56">
             <Input label="Search" />
           </div>
@@ -85,11 +184,48 @@ export function DashboardNavbar() {
             <Bars3Icon strokeWidth={3} className="h-6 w-6 text-blue-gray-500" />
           </IconButton> */}
           {/* <Link to="/auth/sign-in"> */}
+          {
+            currentUser?.proyecto &&
+              projects.length > 0 && (
+
+              <div className="w-80">
+
+                <Select
+                  label="Proyecto"
+
+                  value={String(
+                    currentUser.proyecto.id
+                  )}
+
+                  onChange={
+                    handleChangeProject
+                  }
+                >
+
+                  {/* 🔥 temporal hardcode */}
+                  {
+                    projects.map((project) => (
+
+                      <Option
+                        key={project.id}
+                        value={String(project.id)}
+                      >
+                        {project.nombre}
+                      </Option>
+
+                    ))
+                  }
+
+                </Select>
+
+              </div>
+            )
+          }
             <Button
               variant="text"
               color="blue-gray"
               className="items-center gap-1 px-4 flex normal-case"
-              onClick={() => logout()}
+              onClick={handleLogout}
             >
               <UserCircleIcon className="h-5 w-5 text-blue-gray-500" />
               {currentUser ? currentUser.nombre : "Iniciar sesion"}

@@ -17,3 +17,42 @@ export async function getuserByToken() {
      throw Error(error);
     }
 }
+
+export async function logoutRequest() {
+
+    try {
+
+        const response =
+            await axiosInstance.post(
+                "/auth/logout"
+            );
+
+        return response.data;
+
+    } catch (error) {
+
+        throw Error(error);
+    }
+}
+
+export async function changeProject(
+    proyectoId
+) {
+
+    try {
+
+        const response =
+            await axiosInstance.post(
+                "/auth/change-project",
+                {
+                    proyectoId
+                }
+            );
+
+        return response.data;
+
+    } catch (error) {
+
+        throw Error(error);
+    }
+}

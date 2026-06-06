@@ -75,7 +75,9 @@ const ReciboModalNew = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
     const onSubmit = (data) => {
         setPdfData({
             ...data,
-            concepto: data.concepto == "MENSUAL" ? "PAGO DE CUOTA " + (dataCuota?.numero_cuota || "") : "PARTE DE CUOTA INICIAL",
+            concepto: data.concepto == "MENSUAL" ?
+            "PAGO DE CUOTA " + (dataCuota?.numero_cuota || "") :
+            data.concepto == "CUOTA INICIAL" ? "CUOTA INICIAL" : "PARTE DE CUOTA INICIAL",
         });
     };
 
@@ -116,7 +118,7 @@ const ReciboModalNew = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
                                             className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500">
                                             <option value="">Seleccione...</option>
                                             {
-                                                predios.data.map((predio) => (
+                                                predios?.data?.map((predio) => (
                                                     <option key={predio.id} value={predio.id}>{predio.manzana} - {predio.lote}</option>
                                                 ))
                                             }
@@ -312,6 +314,7 @@ const ReciboModalNew = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
                         >
                             <option value="MENSUAL">MENSUAL</option>
                             <option value="INICIAL">PARTE CUOTA INICIAL</option>
+                            <option value="CUOTA INICIAL">CUOTA INICIAL</option>
                         </select>
                         {errors.concepto && <p className="text-red-500 text-sm">{errors.concepto.message}</p>}
                     </div>

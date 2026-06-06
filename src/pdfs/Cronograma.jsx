@@ -1,3 +1,4 @@
+import useAuthStore from '@/store/authStore';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 
 const styles = StyleSheet.create({
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
       color: '#111',
     },
   });
-  
+
 
 const chunkArray = (arr, size) =>
   arr.reduce((acc, _, i) => (i % size ? acc : [...acc, arr.slice(i, i + size)]), []);
@@ -74,6 +75,9 @@ const Cronograma = ({ formData, cuotas, formatearFecha }) => {
       <Page size="A4"  style={styles.page}>
       {/* Marca de agua */}
       <Image src="/img/MARCAAGUA.jpg" style={styles.watermark} fixed />
+        <Text style={styles.title}>
+          {useAuthStore.getState().currentUser?.proyecto?.nombre || "Proyecto"}
+        </Text>
         <Text style={styles.title}>
           Cronograma de pagos - Lote {formData?.predio?.lote}, Mz. {formData?.predio?.manzana}
         </Text>

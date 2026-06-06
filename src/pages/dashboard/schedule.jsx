@@ -11,6 +11,7 @@ import { useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import EditCuotaMensualModal from "@/widgets/me/EditCuotaMensualModal";
 import ReciboModalNew from "@/widgets/me/ReciboModalNew";
+import ReceiptActions from "@/custom/components/cuotas/ReceiptActions";
 
 const Schedule = () => {
     const location = useLocation();
@@ -584,7 +585,7 @@ const Schedule = () => {
                     <h2 className="text-white text-lg font-bold">Pagos de cuota inicial </h2>
                     {/* {
                         data && (data.precio_total - data.saldo_actual < data.cuota_inicial) && */}
-                    <button className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded ml-2" onClick={() => { setModalAddCuotaInicialOpen(true); setTipoCuota("INICIAL") }}>
+                    <button className="bg-green-600 hover:bg-green-700 text-white px-2 rounded ml-2" onClick={() => { setModalAddCuotaInicialOpen(true); setTipoCuota("INICIAL") }}>
                         Registrar +
                     </button>
                     {/* } */}
@@ -619,7 +620,13 @@ const Schedule = () => {
                                                         </button>
                                                         <button className="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded ml-2" onClick={() => handleModalOpen(cuota)}>
                                                             <DocumentIcon className="w-6 h-6" />
-                                                        </button>
+                                                </button>
+                                                <ReceiptActions
+                                                  cuota={cuota}
+                                                  onUploaded={() => {
+                                                    getCuotasxPago();
+                                                  }}
+                                                />
                                                     </>
                                                 ) : (
                                                     <>
@@ -654,12 +661,12 @@ const Schedule = () => {
                             Generar Cuotas <i className="fas fa-download ml-2"></i>
                         </button>
                     } */}
-                    <button className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded ml-2" onClick={() => { setModalAddCuotaInicialOpen(true); setTipoCuota("MENSUAL") }}>
+                    <button className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded ml-2" onClick={() => { setModalAddCuotaInicialOpen(true); setTipoCuota("MENSUAL") }}>
                         Registrar +
                     </button>
                     {
                         cuotasxPago.data && cuotasxPago.data.length > 0 &&
-                        <button className="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded ml-2" onClick={() => setModalCronogramaOpen(true)}>
+                        <button className="bg-yellow-700 hover:bg-yellow-800 text-white px-2 py-1 rounded ml-2" onClick={() => setModalCronogramaOpen(true)}>
                             Descargar Cronograma <i className="fas fa-download ml-2"></i>
                         </button>
                     }
@@ -689,25 +696,31 @@ const Schedule = () => {
                                             <td className="p-3 flex justify-center">
                                                 {cuota.estado ? (
                                                     <>
-                                                        <button className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded" onClick={() => revertirpagarCuota(cuota.id)}>
+                                                        <button className="bg-green-500 hover:bg-green-600 text-white px-2 rounded" onClick={() => revertirpagarCuota(cuota.id)}>
                                                             Pagada
                                                         </button>
-                                                        <button className="bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded ml-2" onClick={() => handleModalOpen(cuota)}>
+                                                        <button className="bg-yellow-700 hover:bg-yellow-800 text-white px-2 rounded ml-2" onClick={() => handleModalOpen(cuota)}>
                                                             <DocumentIcon className="w-6 h-6" />
                                                         </button>
+                                                        <ReceiptActions
+                                                          cuota={cuota}
+                                                          onUploaded={() => {
+                                                            getCuotasxPago();
+                                                          }}
+                                                        />
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <button className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded" onClick={() => pagarCuota(cuota.id)}>
+                                                        <button className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-2 rounded" onClick={() => pagarCuota(cuota.id)}>
                                                             Pagar
                                                         </button>
 
                                                     </>
                                                 )}
-                                                <button className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded ml-2" onClick={() => editItemMensual(cuota)}>
+                                                <button className="bg-gray-500 hover:bg-gray-600 text-white px-2 rounded ml-2" onClick={() => editItemMensual(cuota)}>
                                                     <PencilIcon className="w-6 h-6" />
                                                 </button>
-                                                <button className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded ml-2" onClick={() => removeItemMensual(cuota.id)}>
+                                                <button className="bg-red-500 hover:bg-red-600 text-white px-2 rounded ml-2" onClick={() => removeItemMensual(cuota.id)}>
                                                     <TrashIcon className="w-6 h-6" />
                                                 </button>
                                             </td>
