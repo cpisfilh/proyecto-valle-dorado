@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image, Font } from '@react-pdf/renderer';
 import { numeroALetras } from '@/utils';
+import useAuthStore from '@/store/authStore';
 
 Font.register({
     family: 'Open Sans',
@@ -133,9 +134,8 @@ const Recibo = ({ data }) => {
                                     `${p.lote} mz. ${p.manzana}`
                                 )).join(", ")}
                             </Text>
-                        </Text> del proyecto para casas
-                        de campo <Text style={styles.bold}>{import.meta.env.VITE_PROJECT_NAME}</Text>, ubicado en distrito y provincia de Sullana, departamento de Piura
-                        (Predio rústico La Capilla RC {import.meta.env.VITE_PROJECT_RC}).
+                        </Text> del proyecto <Text style={styles.bold}>{useAuthStore.getState().currentUser?.proyecto?.nombre || "No establecido"}</Text>, ubicado en {useAuthStore.getState().currentUser?.proyecto?.direccion || "No definido"}
+                        (RC {useAuthStore.getState().currentUser?.proyecto?.registro_catastral || "No definido"}).
                     </Text>
                     {/* <Text style={styles.text}>
                     Será descontado del monto total del precio que es <Text style={styles.bold}>S/ {" "}{data.montoTotal}</Text> ({montoALetras(data.montoTotal)}) del lote según lo establecido en el acuerdo.

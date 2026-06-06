@@ -1,24 +1,16 @@
-import useAuthStore from "@/store/authStore";
 import axios from "axios";
-const Bae_URL = import.meta.env.VITE_BASE_URL
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const axiosInstance = axios.create({
-    baseURL: Bae_URL,
+    baseURL: BASE_URL,
+
     headers: {
         "Content-Type": "application/json",
     },
-});
 
-// Agregar un interceptor para actualizar el token dinámicamente
-axiosInstance.interceptors.request.use(
-    (config) => {
-      const token = useAuthStore.getState().token; // Obtiene el token directamente del store
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => Promise.reject(error)
-  );
+    // 🔥 ESTO ES LO IMPORTANTE
+    withCredentials: true,
+});
 
 export default axiosInstance;

@@ -64,7 +64,7 @@ export function Home() {
               className="flex items-center justify-between mb-4"
             >
               <Typography variant="h3">
-                Cuotas x vencer 
+                Cuotas x vencer
               </Typography>
               <Button className="flex justify-center" onClick={refetch}>
                 Recargar
@@ -72,7 +72,7 @@ export function Home() {
             </div>
             {/* <Typography> */}
             {(!loading && !isRefetching) ? (
-              cuotasPorVencer.data.length > 0 ? (
+              cuotasPorVencer.data?.length > 0 ? (
                 <ul>
                   {cuotasPorVencer.data.map((cuota) => (
                     <li

@@ -17,33 +17,66 @@ export function SignIn() {
 
   const [Mensaje, setMensaje] = useState("");
   const [loading, setLoading] = useState(false);
+
   const handleSignIn = async (email, password) => {
-    setLoading(true);
-    setMensaje("");
-    try {
-      const response = await login(email, password);
-      if (response.message === "exito") {
-        setToken(response.data.token);
-        const response1 = await getuserByToken();
-        if (response1.message === "exito") {
-          setCurrentUser(response1.data);
-        } else if (response1.message === "No autorizado") {
-          setMensaje(response1.message);
-        } else {
-          setMensaje(response1.error);
-        }
-      } else {
-        setMensaje(response.error);
-        console.log(response.error);
+
+      setLoading(true);
+
+      setMensaje("");
+
+      try {
+
+          const response = await login(
+              email,
+              password
+          );
+
+          if (response.message === "exito") {
+
+              const response1 =
+                  await getuserByToken();
+
+              if (response1.message === "exito") {
+
+                  setCurrentUser(
+                      response1.data
+                  );
+
+              } else if (
+                  response1.message ===
+                  "No autorizado"
+              ) {
+
+                  setMensaje(
+                      response1.message
+                  );
+
+              } else {
+
+                  setMensaje(
+                      response1.error
+                  );
+              }
+
+          } else {
+
+              setMensaje(response.error);
+
+              console.log(response.error);
+          }
+
+      } catch (error) {
+
+          setMensaje("Ocurrio un error");
+
+      } finally {
+
+          setLoading(false);
+
+          setTimeout(() => {
+              setMensaje("");
+          }, 3000);
       }
-    } catch (error) {
-      setMensaje("Ocurrio un error");
-    } finally {
-      setLoading(false);
-      setTimeout(() => {
-        setMensaje("");
-      }, 3000);
-    }
   };
 
   const handleSubmit = (e) => {
