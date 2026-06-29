@@ -1,4 +1,4 @@
-import { postCreatePago } from "@/requests/reqPagos";
+import { postCreatePagoXPredios } from "@/requests/reqPagos";
 import usePaymentsStore from "@/store/usePaymentsStore";
 import { Button, Card, CardBody, CardFooter, CardHeader, Input, Spinner, Typography } from "@material-tailwind/react";
 import { useState } from "react";
@@ -15,7 +15,7 @@ const CreatePayment = () => {
             cuotaInicial: null,
             fechaReferencia: null,
             numeroCuotas: null,
-            predio: ""
+            predios: [""]
         }
     });
     const navigate = useNavigate();
@@ -25,20 +25,23 @@ const CreatePayment = () => {
     const dataPredios = location.state?.resultsPredios || [];
 
     // Obtenemos el array de clientes desde el formulario
-    const clientes = watch("clientes");
+  const clientes = watch("clientes");
+
+    // Obtenemos el array de predios desde el formulario
+    const predios = watch("predios");
+
 
     async function onSubmit(data) {
         const currentUrl = window.location.pathname;
         setLoading(true);
         // Crear la fecha en local y ajustarla a medianoche en UTC
-        console.log(data);
+
     const fecha_pagon = new Date(data.fechaReferencia);
-    fecha_pagon.setUTCHours(0, 0, 0, 0); 
+    fecha_pagon.setUTCHours(0, 0, 0, 0);
 
     const fecha_pago_ajustada = fecha_pagon.toISOString();
-    console.log(fecha_pago_ajustada);
         try {
-            const resp = await postCreatePago({ ...data, fechaCuotaInicial: fecha_pago_ajustada });
+            const resp = await postCreatePagoXPredios({ ...data, fechaCuotaInicial: fecha_pago_ajustada });
             if(resp.message === "exito") {
                 Swal.fire({
                     icon: 'success',
@@ -52,13 +55,14 @@ const CreatePayment = () => {
             }else{
                 Swal.fire({
                     icon: 'error',
-                    text: 'Ocurrio un error!',
+                    text: resp.error || 'Ocurrio un error!',
                     customClass: {
                         confirmButton: 'bg-red-500 text-white rounded hover:bg-red-600'
                     }
                 })
             }
         } catch (error) {
+          console.log(error);
             Swal.fire({
                 icon: 'error',
                 text: 'Ocurrio un error!',
@@ -76,11 +80,23 @@ const CreatePayment = () => {
         setValue("clientes", [...clientes, ""]);
     };
 
+    // Agregar un nuevo select de predio
+    const addPredio = () => {
+        setValue("predios", [...predios, ""]);
+    };
+
     // Eliminar un select de cliente
     const removeCliente = (index) => {
         const newClientes = [...clientes];
         newClientes.splice(index, 1);
         setValue("clientes", newClientes);
+    };
+
+    // Eliminar un select de predio
+    const removePredio = (index) => {
+        const newPredios = [...predios];
+        newPredios.splice(index, 1);
+        setValue("predios", newPredios);
     };
 
     return (
@@ -160,15 +176,37 @@ const CreatePayment = () => {
                     {/* Predio */}
                     <div className="mb-4">
                         <label className="block text-gray-700 font-bold">Predio</label>
-                        <select {...register("predio", { required: "El campo Predio es requerido", setValueAs: (value) => (value ? Number(value) : null) })} className="w-full p-2 border border-gray-300 rounded">
-                            <option value="">Seleccione una opción</option>
-                            {dataPredios.map((option) => (
-                                <option key={option.id} value={option.id}>
-                                    {option.manzana + " - " + option.lote}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.predio && <Typography className="text-red-500 text-sm font-bold">{errors.predio.message}</Typography>}
+                        {predios.map((_, index) => (
+                            <div key={index} className="flex items-center space-x-2 mb-2">
+                                <select
+                                    {...register(`predios.${index}`, {
+                                        required: "Debe seleccionar un predio",
+                                        setValueAs: (value) => (value ? Number(value) : null)
+                                    })}
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                >
+                                    <option value="">Seleccione un predio</option>
+                                    {dataPredios.map((option) => (
+                                        <option key={option.id} value={option.id}>
+                                            {option.manzana + " - " + option.lote}
+                                        </option>
+                                    ))}
+                                </select>
+                                <Button
+                                    type="button"
+                                    color="red"
+                                    variant="text"
+                                    onClick={() => removePredio(index)}
+                                    disabled={predios.length === 1}
+                                >
+                                    ✖
+                                </Button>
+                            </div>
+                        ))}
+                        <Button type="button" color="blue" onClick={addPredio}>
+                            + Agregar Predio
+                        </Button>
+                        {errors.predios && <Typography className="text-red-500 text-sm font-bold">{errors.predios.message}</Typography>}
                     </div>
 
                     <CardFooter className="flex justify-between">
