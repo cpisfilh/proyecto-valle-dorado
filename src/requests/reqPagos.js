@@ -27,6 +27,15 @@ export async function postCreatePago(data) {
     }
 }
 
+export async function postCreatePagoXPredios(data) {
+    try {
+    const response = await axiosInstance.post("/pago/createByPredios", data);
+    return response.data;
+    } catch (error) {
+     throw Error(error);
+    }
+}
+
 export async function postEditPago(data) {
     try {
     const response = await axiosInstance.post("/pago/edit", data);
@@ -62,4 +71,3 @@ export async function postEditCurrentBalance(id,data) {
      throw Error(error);
     }
 }
-
