@@ -13,7 +13,6 @@ const tiposPago = ["Transferencia Bancaria", "Depósito en Cuenta", "Yape", "Pli
 
 const ReciboModalNew = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
     const [pdfData, setPdfData] = useState(null);
-    console.log(dataCuota);
 
     const { control, register, formState: { errors }, reset, setValue, handleSubmit } = useForm({
         defaultValues: {
@@ -77,7 +76,8 @@ const ReciboModalNew = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
             ...data,
             concepto: data.concepto == "MENSUAL" ?
             "PAGO DE CUOTA " + (dataCuota?.numero_cuota || "") :
-            data.concepto == "CUOTA INICIAL" ? "CUOTA INICIAL" : "PARTE DE CUOTA INICIAL",
+            data.concepto == "CUOTA INICIAL" ? "CUOTA INICIAL" :
+            data.concepto == "TOTAL" ? "PAGO TOTAL" : "PARTE DE CUOTA INICIAL",
         });
     };
 
@@ -315,6 +315,7 @@ const ReciboModalNew = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
                             <option value="MENSUAL">MENSUAL</option>
                             <option value="INICIAL">PARTE CUOTA INICIAL</option>
                             <option value="CUOTA INICIAL">CUOTA INICIAL</option>
+                            <option value="TOTAL">PAGO TOTAL</option>
                         </select>
                         {errors.concepto && <p className="text-red-500 text-sm">{errors.concepto.message}</p>}
                     </div>
