@@ -202,6 +202,7 @@ const ReciboModalNew = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
                                         }
                                     })}
                                     type="number"
+                                    step="0.01"
                                     className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
                                 />
                                 {errors.montoRecibo && <p className="text-red-500 text-sm">{errors.montoRecibo.message}</p>}
@@ -220,6 +221,7 @@ const ReciboModalNew = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
                                         }
                                     })}
                                     type="number"
+                                    step="0.01"
                                     className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
                                 />
                                 {errors.montoTotal && <p className="text-red-500 text-sm">{errors.montoTotal.message}</p>}
