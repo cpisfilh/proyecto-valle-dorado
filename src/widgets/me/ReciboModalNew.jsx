@@ -8,11 +8,17 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { useState } from "react";
 import Recibo from "@/pdfs/Recibo";
+import useAuthStore from "@/store/authStore";
 
 const tiposPago = ["Transferencia Bancaria", "Depósito en Cuenta", "Yape", "Plin", "Cheque de Gerencia"];
 
 const ReciboModalNew = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
     const [pdfData, setPdfData] = useState(null);
+    const registroCatastral = useAuthStore((state) => state.currentUser?.proyecto?.registro_catastral);
+    const registrosCatastrales = (registroCatastral || "")
+        .split(",")
+        .map((registro) => registro.trim())
+        .filter(Boolean);
 
     const { control, register, formState: { errors }, reset, setValue, handleSubmit } = useForm({
         defaultValues: {
@@ -34,6 +40,7 @@ const ReciboModalNew = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
                 dni: c.cliente_dni
             })),
             concepto: dataCuota?.tipo || "MENSUAL",
+            registro_catastral: registrosCatastrales[0] || "",
             // concepto: dataCuota && dataCuota.tipo == "MENSUAL" ? "PAGO DE CUOTA " + dataCuota.numero_cuota : "PARTE DE CUOTA INICIAL",
         }
     })
@@ -69,7 +76,13 @@ const ReciboModalNew = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
         if (isOpen) {
             reset()
         }
-    }, [isOpen])
+    }, [isOpen, reset])
+
+    useEffect(() => {
+        if (isOpen && registrosCatastrales.length > 0) {
+            setValue("registro_catastral", registrosCatastrales[0]);
+        }
+    }, [isOpen, registroCatastral, setValue])
 
     const onSubmit = (data) => {
         setPdfData({
@@ -306,20 +319,44 @@ const ReciboModalNew = ({ isOpen, onClose, dataCuota, dataGeneral }) => {
                             {errors.cliente && <p className="text-red-500 text-sm">{errors.cliente.message}</p>}
                         </div>
                     </div>
-                    <div>
-                        <div className="mb-2 flex items-center justify-between">
-                            <label className="block text-sm font-medium text-gray-900">Concepto</label>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <div className="mb-2 flex items-center justify-between">
+                                <label className="block text-sm font-medium text-gray-900">Concepto</label>
+                            </div>
+                            <select
+                                {...register("concepto", { required: true })}
+                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                            >
+                                <option value="MENSUAL">MENSUAL</option>
+                                <option value="INICIAL">PARTE CUOTA INICIAL</option>
+                                <option value="CUOTA INICIAL">CUOTA INICIAL</option>
+                                <option value="TOTAL">PAGO TOTAL</option>
+                            </select>
+                            {errors.concepto && <p className="text-red-500 text-sm">{errors.concepto.message}</p>}
                         </div>
-                        <select
-                            {...register("concepto", { required: true })}
-                            className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
-                        >
-                            <option value="MENSUAL">MENSUAL</option>
-                            <option value="INICIAL">PARTE CUOTA INICIAL</option>
-                            <option value="CUOTA INICIAL">CUOTA INICIAL</option>
-                            <option value="TOTAL">PAGO TOTAL</option>
-                        </select>
-                        {errors.concepto && <p className="text-red-500 text-sm">{errors.concepto.message}</p>}
+                        <div>
+                            <div className="mb-2 flex items-center justify-between">
+                                <label className="block text-sm font-medium text-gray-900">Registro catastral (R.C.)</label>
+                            </div>
+                            <select
+                                {...register("registro_catastral", {
+                                    required: {
+                                        value: true,
+                                        message: "Campo requerido"
+                                    }
+                                })}
+                                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500"
+                            >
+                                {registrosCatastrales.length === 0 && (
+                                    <option value="">No definido</option>
+                                )}
+                                {registrosCatastrales.map((registro) => (
+                                    <option key={registro} value={registro}>{registro}</option>
+                                ))}
+                            </select>
+                            {errors.registro_catastral && <p className="text-red-500 text-sm">{errors.registro_catastral.message}</p>}
+                        </div>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                         <Button type="submit" className="w-full">Generar Recibo</Button>
