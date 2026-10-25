@@ -135,7 +135,7 @@ const Recibo = ({ data }) => {
                                 )).join(", ")}
                             </Text>
                         </Text> del proyecto <Text style={styles.bold}>{useAuthStore.getState().currentUser?.proyecto?.nombre || "No establecido"}</Text>, ubicado en {useAuthStore.getState().currentUser?.proyecto?.direccion || "No definido"}
-                        (RC {useAuthStore.getState().currentUser?.proyecto?.registro_catastral || "No definido"}).
+                        (RC {data.registro_catastral || useAuthStore.getState().currentUser?.proyecto?.registro_catastral || "No definido"}).
                     </Text>
                     {/* <Text style={styles.text}>
                     Será descontado del monto total del precio que es <Text style={styles.bold}>S/ {" "}{data.montoTotal}</Text> ({montoALetras(data.montoTotal)}) del lote según lo establecido en el acuerdo.
